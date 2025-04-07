@@ -1,0 +1,108 @@
+.card-grid {
+  margin: 50px auto 0;
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  grid-template-rows: repeat(auto, 1fr);
+  column-gap: 17px;
+  row-gap: 20px;
+  /* min-height: 100vh;*/
+}
+
+.card {
+  position: relative;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  grid-template-rows: repeat(2, 1fr);
+  grid-template-areas: "photo photo" "name like";
+  width: 282px;
+  height: 361px;
+  background: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.card__image {
+  grid-area: photo;
+  width: 282px;
+  height: 282px;
+  display: block;
+  object-fit: cover;
+}
+
+.card__image:hover {
+  transition: opacity 0.3s ease;
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.card__title {
+  grid-area: name;
+  margin-left: 21px;
+  text-wrap: nowrap;
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 900;
+  font-size: 24px;
+  line-height: 29px;
+  color: #000000;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.card__like-button {
+  grid-area: like;
+  margin-right: 18px;
+  border: none;
+  background: url(../images/likeButton.svg) center no-repeat;
+  cursor: pointer;
+  height: 19px;
+  width: 21px;
+  align-self: center;
+  justify-self: flex-end;
+}
+
+.card__like-button:hover {
+  transition: opacity 0.3s ease;
+  opacity: 0.5;
+}
+
+.card__like-button.active {
+  background: url(../images/likeButtonActive.svg) center no-repeat;
+}
+
+.card__delete-button {
+  position: absolute;
+  top: 18px;
+  right: 15px;
+  width: 18px;
+  height: 19px;
+  z-index: 1;
+  cursor: pointer;
+  background: url(../images/deleteButton.svg) center;
+  border: none;
+}
+
+/*------- Consulta midia MEDIA -------*/
+
+@media screen and (max-width: 1024px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+  }
+
+  .card__like-button:hover {
+    opacity: unset;
+  }
+}
+
+/*------- Consulta midia PEQUENA -------*/
+
+@media screen and (max-width: 650px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(6, 1fr);
+    margin: 36px auto 0;
+  }
+}

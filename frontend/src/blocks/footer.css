@@ -1,0 +1,39 @@
+.footer {
+  align-self: flex-start;
+  margin: 0 auto;
+}
+
+.footer__copyright {
+  margin: 67px auto 60px;
+  font-family: "Inter", Arial, sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 22px;
+
+  color: #545454;
+}
+
+/*------- Consulta midia TABLET -------*/
+
+@media screen and (max-width: 1024px) {
+  .footer {
+    padding: 0 7%;
+    margin: 0;
+  }
+}
+
+/*------- Consulta midia MOBILE -------*/
+
+@media screen and (max-width: 544px) {
+  .footer {
+    padding: 0 7%;
+    margin: 0;
+  }
+
+  .footer__copyright {
+    margin: 50px auto 36px;
+    font-size: 14px;
+    line-height: 1;
+  }
+}
