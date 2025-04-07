@@ -1,9 +1,12 @@
-export const BASE_URL = "https://around-api.pt-br.tripleten-services.com/v1";
+export const BASE_URL = "http://localhost:3000";
 
-const DEFAULT_HEADERS = {
-  Accept: "application/json",
-  "Content-Type": "application/json",
-  Authorization: `8308cb53-bc91-42d1-afda-3dc42a0181bf`,
+const getHeaders = () => {
+  const token = localStorage.getItem("token");
+  return {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
 };
 
 // FUNCTION - tratar respostas
@@ -41,16 +44,17 @@ export const handleError = (err) => {
 export const getUserInfo = () => {
   return fetch(`${BASE_URL}/users/me`, {
     method: "GET",
-    headers: DEFAULT_HEADERS,
+    headers: getHeaders(),
   })
     .then(handleResponse)
     .catch(handleError);
 };
+
 // FUNCTION - obter dados dos cards
 export const getInitialCards = () => {
   return fetch(`${BASE_URL}/cards`, {
     method: "GET",
-    headers: DEFAULT_HEADERS,
+    headers: getHeaders(),
   })
     .then(handleResponse)
     .catch(handleError);
@@ -60,7 +64,7 @@ export const getInitialCards = () => {
 export const updateUserInfo = ({ name, about }) => {
   return fetch(`${BASE_URL}/users/me`, {
     method: "PATCH",
-    headers: DEFAULT_HEADERS,
+    headers: getHeaders(),
     body: JSON.stringify({ name, about }),
   })
     .then(handleResponse)
@@ -71,7 +75,7 @@ export const updateUserInfo = ({ name, about }) => {
 export const updateAvatar = (avatar) => {
   return fetch(`${BASE_URL}/users/me/avatar`, {
     method: "PATCH",
-    headers: DEFAULT_HEADERS,
+    headers: getHeaders(),
     body: JSON.stringify({ avatar }),
   })
     .then(handleResponse)
@@ -82,7 +86,7 @@ export const updateAvatar = (avatar) => {
 export const addCard = ({ name, link }) => {
   return fetch(`${BASE_URL}/cards`, {
     method: "POST",
-    headers: DEFAULT_HEADERS,
+    headers: getHeaders(),
     body: JSON.stringify({ name, link }),
   })
     .then(handleResponse)
@@ -93,7 +97,7 @@ export const addCard = ({ name, link }) => {
 export const changeLikeCardStatus = (cardId, isLiked) => {
   return fetch(`${BASE_URL}/cards/${cardId}/likes`, {
     method: isLiked ? "PUT" : "DELETE",
-    headers: DEFAULT_HEADERS,
+    headers: getHeaders(),
   })
     .then(handleResponse)
     .catch(handleError);
@@ -103,7 +107,7 @@ export const changeLikeCardStatus = (cardId, isLiked) => {
 export const deleteCard = (cardId) => {
   return fetch(`${BASE_URL}/cards/${cardId}`, {
     method: "DELETE",
-    headers: DEFAULT_HEADERS,
+    headers: getHeaders(),
   })
     .then(handleResponse)
     .catch(handleError);

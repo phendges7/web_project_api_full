@@ -1,14 +1,14 @@
 import { useContext, useEffect, useState } from "react";
 
-import { fetchUserAndCards } from "../../utils/api.js";
+import { fetchUserAndCards } from "../utils/api.js";
 
-import Popup from "./components/Popup/Popup.jsx";
-import editProfileButton from "../../images/editButton.svg";
-import avatar from "../../images/avatarDefault.jpg";
-import Card from "./components/Card/Card";
-import ImagePopup from "./components/Popup/components/ImagePopup.jsx";
-import CurrentUserContext from "../../contexts/CurrentUserContext.js";
-import CardContext from "../../contexts/CardContext.js";
+import Popup from "../components/Main/components/Popup/Popup.jsx";
+import editProfileButton from "../images/editButton.svg";
+import avatar from "../images/avatarDefault.jpg";
+import Card from "../components/Main/components/Card/Card.jsx";
+import ImagePopup from "../components/Main/components/Popup/components/ImagePopup.jsx";
+import CurrentUserContext from "../contexts/CurrentUserContext.js";
+import CardContext from "../contexts/CardContext.js";
 
 export default function Main({
   onOpenPopup,

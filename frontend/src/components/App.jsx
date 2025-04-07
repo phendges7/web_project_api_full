@@ -39,7 +39,7 @@ import CardContext from "../contexts/CardContext";
 import AppContext from "../contexts/AppContext";
 
 // Utils
-import * as auth from "../utils/auth";
+import * as auth from "../../../backend/middlewares/auth";
 import * as api from "../utils/api";
 import { setToken, getToken, removeToken } from "../utils/token";
 import { Popups } from "./Main/components/constants";

@@ -1,5 +1,10 @@
 const router = require("express").Router();
 const {
+  validateCreateCard,
+  validateCardId,
+} = require("../validators/cardsValidator");
+
+const {
   getCards,
   createCard,
   deleteCard,
@@ -7,19 +12,11 @@ const {
   dislikeCard,
 } = require("../controllers/cards");
 
-// rota para buscar todos os cards
-router.get("/", getCards);
-
-// rota para criar um card
-router.post("/", createCard); // Rota para criar um card
-
-// rota para deletar um card
-router.delete("/:cardId", deleteCard);
-
-// rota para curtir um card
-router.put("/:cardId/likes", likeCard);
-
-// rota para descurtir um card
-router.delete("/:cardId/likes", dislikeCard);
+// Define as rotas
+router.get("/", getCards); // Rota para obter todos os cards
+router.post("/", validateCreateCard, createCard); // Rota para criar um card
+router.delete("/:cardId", validateCardId, deleteCard); // Rota para deletar um card
+router.put("/:cardId/likes", validateCardId, likeCard); // Rota para curtir um card
+router.delete("/:cardId/likes", validateCardId, dislikeCard); // Rota para descurtir um card
 
 module.exports = router;

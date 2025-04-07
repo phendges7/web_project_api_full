@@ -1,238 +1,194 @@
 const User = require("../models/user");
-const { HttpStatus, HttpResponseMessage } = require("../enums/http.js");
+const {
+  HttpStatus,
+  HttpResponseMessage,
+  ErrorTypes,
+} = require("../enums/http");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// controller para buscar todos os usuarios
-const getUsers = async (req, res) => {
-  try {
-    const users = await User.find({});
-    res.status(HttpStatus.OK).json({
-      message: HttpResponseMessage.SUCCESS,
-      data: users
-    });
-    // Captura erros
-  } catch (error) {
-    console.error(`Erro ao buscar cards: ${error.message}`);
-    res
-      .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .json({ message: HttpResponseMessage.INTERNAL_SERVER_ERROR });
-  }
+// Helper para formatar erros
+const throwError = (message, status, type) => {
+  const error = new Error(message);
+  error.status = status;
+  error.type = type;
+  throw error;
 };
 
-// controller para buscar um usuario
-const getUserById = async (req, res) => {
+// controller para buscar usuario atuals
+const getCurrentUser = async (req, res, next) => {
   try {
-    const user = await User.findById(req.params.userId);
+    console.log("ID do usuário:", req.user._id);
+
+    const user = await User.findById(req.user._id);
+
     if (!user) {
-      const error = new Error("Usuário não encontrado");
-      error.name = "UserNotFound";
-      error.status = HttpStatus.NOT_FOUND;
-      throw error; // Lança o erro para ser capturado no catch
+      throwError("Usuário não encontrado", 404, "NOT_FOUND");
     }
-    res.status(HttpStatus.OK).json({
-      message: HttpResponseMessage.SUCCESS,
-      data: user
+
+    console.log("Usuário encontrado:", user);
+    res.status(200).json({
+      success: true,
+      data: user,
     });
-    // Captura erros
   } catch (error) {
-    console.error(`Erro ao buscar usuário: ${error.message}`);
-    if (error.name === "UserNotFound") {
-      return res.status(HttpStatus.NOT_FOUND).json({
-        message: HttpResponseMessage.NOT_FOUND
-      });
-    }
-    res
-      .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .json({ message: HttpResponseMessage.INTERNAL_SERVER_ERROR });
+    next(error);
   }
 };
 
 // controller para criar um usuario
-const createUser = async (req, res) => {
+const createUser = async (req, res, next) => {
   try {
     const { name, about, avatar, email, password } = req.body;
 
-    // Criptografa a senha
-    const hashedPassword = await bcrypt.hash(password, 10);
+    if (!email || !password) {
+      throwError(
+        "Email e senha são obrigatórios",
+        HttpStatus.BAD_REQUEST,
+        ErrorTypes.VALIDATION
+      );
+    }
 
-    // Cria o usuário
+    const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({
       name,
       about,
       avatar,
       email,
-      password: hashedPassword
+      password: hashedPassword,
     });
 
-    // Deleta a senha do objeto de resposta
-    // Importante para não expor a senha do usuário na resposta
     const userWithoutPassword = newUser.toObject();
     delete userWithoutPassword.password;
 
     res.status(HttpStatus.CREATED).json({
+      success: true,
       message: HttpResponseMessage.CREATED,
-      data: userWithoutPassword
+      data: userWithoutPassword,
     });
-
-    // Captura erros
   } catch (error) {
-    console.error(`Erro ao criar usuário: ${error.message}`);
-    if (error.name === "ValidationError") {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        message: HttpResponseMessage.BAD_REQUEST,
-        details: error.message
-      });
-    }
-
     if (error.name === "MongoError" && error.code === 11000) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        message: "Email  já cadastrado",
-        details: "O email informado já está em uso"
-      });
+      error.message = "Email já cadastrado";
+      error.details = "O email informado já está em uso";
+      error.status = HttpStatus.BAD_REQUEST;
     }
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      message: HttpResponseMessage.INTERNAL_SERVER_ERROR
-    });
+    next(error);
   }
 };
 
-// controller para atualizar informações do usuario - name e about
-const updateUserInfo = async (req, res) => {
+// controller para atualizar informações do usuario
+const updateUserInfo = async (req, res, next) => {
   try {
     const { name, about } = req.body;
-    const userId = req.user._id;
-
     const updatedUser = await User.findByIdAndUpdate(
-      userId,
+      req.user._id,
       { name, about },
       { new: true, runValidators: true }
     );
 
-    // Verifica se o usuário foi encontrado
     if (!updatedUser) {
-      return res.status(HttpStatus.NOT_FOUND).json({
-        message: HttpResponseMessage.NOT_FOUND
-      });
+      throwError(
+        "Usuário não encontrado",
+        HttpStatus.NOT_FOUND,
+        ErrorTypes.NOT_FOUND
+      );
     }
+
     res.status(HttpStatus.OK).json({
+      success: true,
       message: HttpResponseMessage.SUCCESS,
-      data: updatedUser
+      data: updatedUser,
     });
-    // Captura erros
   } catch (error) {
-    console.error(`Erro ao atualizar usuário: ${error.message}`);
-    if (error.name === "ValidationError") {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        message: HttpResponseMessage.BAD_REQUEST,
-        details: error.message
-      });
-    }
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      message: HttpResponseMessage.INTERNAL_SERVER_ERROR
-    });
+    next(error);
   }
 };
 
 // controller para atualizar o avatar do usuario
-const updateAvatar = async (req, res) => {
+const updateAvatar = async (req, res, next) => {
   try {
     const { avatar } = req.body;
-    const userId = req.user._id;
-
     const updatedUser = await User.findByIdAndUpdate(
-      userId,
+      req.user._id,
       { avatar },
       { new: true, runValidators: true }
     );
 
-    // Verifica se o usuário foi encontrado
     if (!updatedUser) {
-      return res.status(HttpStatus.NOT_FOUND).json({
-        message: HttpResponseMessage.NOT_FOUND
-      });
+      throwError(
+        "Usuário não encontrado",
+        HttpStatus.NOT_FOUND,
+        ErrorTypes.NOT_FOUND
+      );
     }
+
     res.status(HttpStatus.OK).json({
+      success: true,
       message: HttpResponseMessage.SUCCESS,
-      data: updatedUser
+      data: updatedUser,
     });
-    // Captura erros
   } catch (error) {
-    console.error(`Erro ao atualizar avatar: ${error.message}`);
-    if (error.name === "ValidationError") {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        message: HttpResponseMessage.BAD_REQUEST,
-        details: error.message
-      });
-    }
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      message: HttpResponseMessage.INTERNAL_SERVER_ERROR
-    });
+    next(error);
   }
 };
 
 // controller para manipular login
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    // Verifica se credenciais foram fornecidas
     if (!email || !password) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        message: "Email e senha são obrigatórios"
-      });
+      throwError(
+        "Email e senha são obrigatórios",
+        HttpStatus.BAD_REQUEST,
+        ErrorTypes.VALIDATION
+      );
     }
 
-    // Busca o usuário pelo email incluindo a senha
     const user = await User.findOne({ email }).select("+password");
-
-    // Verifica se o usuário existe
     if (!user) {
-      return res.status(HttpStatus.UNAUTHORIZED).json({
-        message: "Email ou senha inválidos"
-      });
+      throwError(
+        "Credenciais inválidas",
+        HttpStatus.UNAUTHORIZED,
+        ErrorTypes.AUTH
+      );
     }
 
-    // Cria o token JWT
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throwError(
+        "Credenciais inválidas",
+        HttpStatus.UNAUTHORIZED,
+        ErrorTypes.AUTH
+      );
+    }
+
     const token = jwt.sign(
       { _id: user._id },
-      process.env.JWT_SECRET || "seuSegredoSuperSecreto",
-      {
-        expiresIn: "7d"
-      }
+      process.env.JWT_SECRET || "segredoSuperSecreto",
+      { expiresIn: "7d" }
     );
 
-    // Retorna o token e os dados do usuário (sem a senha)
     const userWithoutPassword = user.toObject();
     delete userWithoutPassword.password;
 
     res.status(HttpStatus.OK).json({
+      success: true,
       message: HttpResponseMessage.SUCCESS,
       data: {
         token,
-        user: userWithoutPassword
-      }
+        user: userWithoutPassword,
+      },
     });
   } catch (error) {
-    console.error(`Erro ao fazer login: ${error.message}`);
-    if (error.name === "ValidationError") {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        message: HttpResponseMessage.BAD_REQUEST,
-        details: error.message
-      });
-    }
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      message: HttpResponseMessage.INTERNAL_SERVER_ERROR
-    });
+    next(error);
   }
 };
 
-// exporta os metodos
 module.exports = {
-  getUsers,
-  getUserById,
+  getCurrentUser,
   createUser,
   updateUserInfo,
   updateAvatar,
-  login
+  login,
 };

@@ -1,25 +1,27 @@
 const router = require("express").Router();
+
+// Importa os middlewares de validação
 const {
-  getUsers,
-  getUserById,
+  validateCreateUser,
+  validateLogin,
+  validateUpdateUser,
+  validateUpdateAvatar,
+} = require("../validators/usersValidator");
+
+// Importa os controladores
+const {
+  getCurrentUser,
   createUser,
   updateUserInfo,
   updateAvatar,
+  login,
 } = require("../controllers/users");
 
-// rota para buscar todos os usuarios
-router.get("/", getUsers);
-
-// rota para buscar um usuario especifico
-router.get("/:userId", getUserById);
-
-// rota para criar um usuario
-router.post("/", createUser);
-
-// rota para atualizar informações do usuario
-router.patch("/me", updateUserInfo);
-
-// rota para atualizar avatar do usuario
-router.patch("/me/avatar", updateAvatar);
+// Define as rotas
+router.post("/signup", validateCreateUser, createUser);
+router.post("/signin", validateLogin, login);
+router.get("/me", getCurrentUser);
+router.patch("/me", validateUpdateUser, updateUserInfo);
+router.patch("/me/avatar", validateUpdateAvatar, updateAvatar);
 
 module.exports = router;

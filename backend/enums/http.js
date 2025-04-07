@@ -18,4 +18,11 @@ const HttpResponseMessage = Object.freeze({
   SERVER_ERROR: "Internal server error",
 });
 
-module.exports = { HttpStatus, HttpResponseMessage };
+const ErrorTypes = Object.freeze({
+  VALIDATION: "ValidationError",
+  AUTH: "AuthError",
+  NOT_FOUND: "NotFoundError",
+  DATABASE: "DatabaseError",
+});
+
+module.exports = { HttpStatus, HttpResponseMessage, ErrorTypes };

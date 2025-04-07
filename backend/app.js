@@ -1,63 +1,56 @@
 const mongoose = require("mongoose");
 const express = require("express");
 const path = require("path");
+const { errors } = require("celebrate");
 
 const app = express();
 const { PORT = 3000 } = process.env;
 
-// Importa o tratamento das mensagens de erro
-const { HttpStatus, HttpResponseMessage } = require("./enums/http");
+// Importa os controladores de usuário
+const { login, createUser } = require("./controllers/users"); // Adicione esta linha!
 
-// Importa as rotas
+// Importa o middlewares
+const auth = require("./middlewares/auth");
+const errorHandler = require("./middlewares/errorHandler");
+
+// Importa os roteadores
 const usersRouter = require("./routes/users");
 const cardsRouter = require("./routes/cards");
-const { login, createUser } = require("./controllers/users");
+const {
+  validateLogin,
+  validateCreateUser,
+} = require("./validators/usersValidator");
 
+// Middlewares
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../frontend")));
 
-// Conecta ao banco de dados
+// Conexão com o MongoDB
 mongoose
-  .connect("mongodb://localhost:27017/aroundb", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
-  .then(() => {
-    console.log("Conectado ao banco de dados");
-  })
-  .catch(err => {
-    console.log(`Erro ao conectar ao banco de dados: ${err.message}`);
-  });
+  .connect("mongodb://localhost:27017/aroundb")
+  .then(() => console.log("✅ Conectado ao MongoDB com sucesso"))
+  .catch((err) => console.error("❌ Erro na conexão com MongoDB:", err));
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: "67ca2603dfa3677eb50ba927" // Substitua pelo seu ID de usuário
-  };
+// Rotas públicas
+app.post("/signin", validateLogin, login);
+app.post("/signup", validateCreateUser, createUser);
 
-  next();
-});
+// Rotas protegidas
+app.use("/users", auth, usersRouter);
+app.use("/cards", auth, cardsRouter);
 
-// Rotas de autenticação
-app.post("/signin", login);
-app.post("/signup", createUser);
+app.use(errors()); // Celebre erros de validação
+app.use(errorHandler); // Middleware de tratamento de erros
 
-// Rotas principais
-app.use("/users", usersRouter);
-app.use("/cards", cardsRouter);
-
-// Rota padrão
+// Rota para o frontend (React)
 app.get("*", (req, res) => {
-  res.send(path.join(__dirname, "../frontend/index.html"));
+  res.sendFile(path.join(__dirname, "../frontend/index.html"));
 });
 
-//Rota padrão para caso a rota não seja encontrada
+// Rota para 404 (API)
 app.use((req, res) => {
-  return res
-    .status(HttpStatus.NOT_FOUND)
-    .json({ message: HttpResponseMessage.NOT_FOUND });
+  res.status(404).json({ message: "Rota não encontrada" });
 });
 
 // Inicia o servidor
-app.listen(PORT, () => {
-  console.log(`Ouvindo a porta ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));

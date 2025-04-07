@@ -7,7 +7,7 @@ const getCards = async (req, res) => {
     const cards = await Card.find({}).populate("owner", "name about avatar");
     res.status(HttpStatus.OK).json({
       message: HttpResponseMessage.SUCCESS,
-      data: cards,
+      data: cards
     });
     // Captura erros
   } catch (error) {
@@ -29,7 +29,7 @@ const createCard = async (req, res) => {
     // Retorna o card criado
     res.status(HttpStatus.CREATED).json({
       message: HttpResponseMessage.CREATED,
-      data: newCard,
+      data: newCard
     });
     // Captura erros
   } catch (error) {
@@ -38,11 +38,11 @@ const createCard = async (req, res) => {
     if (error.name === "ValidationError") {
       return res.status(HttpStatus.BAD_REQUEST).json({
         message: HttpResponseMessage.BAD_REQUEST,
-        details: error.message,
+        details: error.message
       });
     }
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      message: HttpResponseMessage.INTERNAL_SERVER_ERROR,
+      message: HttpResponseMessage.INTERNAL_SERVER_ERROR
     });
   }
 };
@@ -56,21 +56,21 @@ const deleteCard = async (req, res) => {
     const card = await card.findById(cardId);
     if (!card) {
       return res.status(HttpStatus.NOT_FOUND).json({
-        message: HttpResponseMessage.NOT_FOUND,
+        message: HttpResponseMessage.NOT_FOUND
       });
     }
 
     // Verifica se o usuário é o dono do card
     if (card.owner.toString() !== req.user._id.toString()) {
       return res.status(HttpStatus.FORBIDDEN).json({
-        message: HttpResponseMessage.FORBIDDEN,
+        message: HttpResponseMessage.FORBIDDEN
       });
     }
 
     // Deleta o card
     await Card.findByIdAndDelete(cardId);
     res.json({
-      message: HttpResponseMessage.SUCCESS,
+      message: HttpResponseMessage.SUCCESS
     });
     // Captura erros
   } catch (error) {
@@ -80,13 +80,13 @@ const deleteCard = async (req, res) => {
     if (error.name === "CastError") {
       return res.status(HttpStatus.BAD_REQUEST).json({
         message: HttpResponseMessage.BAD_REQUEST,
-        details: "ID inválido",
+        details: "ID inválido"
       });
     }
 
     // Retorna erro interno do servidor
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      message: HttpResponseMessage.SERVER_ERROR,
+      message: HttpResponseMessage.SERVER_ERROR
     });
   }
 };
@@ -106,14 +106,14 @@ const likeCard = async (req, res) => {
     // Verifica se o card foi encontrado
     if (!updatedCard) {
       return res.status(HttpStatus.NOT_FOUND).json({
-        message: HttpResponseMessage.NOT_FOUND,
+        message: HttpResponseMessage.NOT_FOUND
       });
     }
 
     // Retorna o card atualizado
     res.status(HttpStatus.OK).json({
       message: HttpResponseMessage.SUCCESS,
-      data: updatedCard,
+      data: updatedCard
     });
   } catch (error) {
     // Captura erros
@@ -123,12 +123,12 @@ const likeCard = async (req, res) => {
     if (error.name === "CastError") {
       return res.status(HttpStatus.BAD_REQUEST).json({
         message: HttpResponseMessage.BAD_REQUEST,
-        details: "ID inválido",
+        details: "ID inválido"
       });
     }
 
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      message: HttpResponseMessage.SERVER_ERROR,
+      message: HttpResponseMessage.SERVER_ERROR
     });
   }
 };
@@ -146,12 +146,12 @@ const dislikeCard = async (req, res) => {
     );
     if (!updatedCard) {
       return res.status(HttpStatus.NOT_FOUND).json({
-        message: HttpResponseMessage.NOT_FOUND,
+        message: HttpResponseMessage.NOT_FOUND
       });
     }
     res.status(HttpStatus.OK).json({
       message: HttpResponseMessage.SUCCESS,
-      data: updatedCard,
+      data: updatedCard
     });
   } catch (error) {
     // Captura erros
@@ -161,13 +161,13 @@ const dislikeCard = async (req, res) => {
     if (error.name === "CastError") {
       return res.status(HttpStatus.BAD_REQUEST).json({
         message: HttpResponseMessage.BAD_REQUEST,
-        details: "ID inválido",
+        details: "ID inválido"
       });
     }
 
     // Retorna erro interno do servidor
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      message: HttpResponseMessage.SERVER_ERROR,
+      message: HttpResponseMessage.SERVER_ERROR
     });
   }
 };
@@ -177,5 +177,5 @@ module.exports = {
   createCard,
   deleteCard,
   likeCard,
-  dislikeCard,
+  dislikeCard
 };
