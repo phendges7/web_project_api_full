@@ -28,7 +28,7 @@ import { handleError } from "../utils/handlers/errorHandlers";
 import Register from "./Register";
 import Login from "../components/Login";
 import Header from "./Header";
-import Main from "./Main/Main";
+import Main from "../pages/Main";
 import Footer from "./Footer";
 import InfoTooltip from "./Main/components/Popup/components/InfoTooltip";
 import Popup from "./Main/components/Popup/Popup";
