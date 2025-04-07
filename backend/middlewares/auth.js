@@ -1,6 +1,6 @@
 import { handleResponse } from "./api";
 
-const BASE_URL = "https://se-register-api.en.tripleten-services.com/v1";
+const BASE_URL = "http://localhost:3000";
 
 // FUNCTION - REGISTRA USUARIO
 export const register = async (email, password) => {
