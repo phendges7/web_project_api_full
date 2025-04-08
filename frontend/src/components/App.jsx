@@ -68,7 +68,6 @@ function App() {
     if (token) {
       const loadData = async () => {
         try {
-          debugger;
           // 1. Carrega dados completos do usuário
           const userData = await api.getUserInfo();
 
@@ -87,8 +86,7 @@ function App() {
           setIsLoggedIn(true);
           navigate(location.state?.from || "/");
         } catch {
-          debugger;
-          /* removeToken();*/
+          removeToken();
           setIsLoggedIn(false);
         }
       };
@@ -138,8 +136,7 @@ function App() {
     } catch (error) {
       console.error("Erro ao fazer login: ", error);
       setIsInfoTooltipOpen(true);
-      debugger;
-      /*removeToken();*/
+      removeToken();
       setIsLoggedIn(false);
       throw error;
     }

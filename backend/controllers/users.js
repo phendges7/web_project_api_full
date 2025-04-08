@@ -18,17 +18,12 @@ const throwError = (message, status, type) => {
 // controller para buscar usuario atuals
 const getCurrentUser = async (req, res, next) => {
   try {
-    console.log("Headers recebidos:", req.headers);
-    console.log("Token decodificado:", req.user);
-
     const user = await User.findById(req.user._id);
 
     if (!user) {
       throwError("Usuário não encontrado", 404, "NOT_FOUND");
     }
-
-    console.log("Usuário encontrado:", user);
-    res.status(200).json(user.toObject());
+    res.status(200).send(user);
   } catch (error) {
     next(error);
   }
@@ -37,6 +32,7 @@ const getCurrentUser = async (req, res, next) => {
 // controller para criar um usuario
 const createUser = async (req, res, next) => {
   try {
+    debugger;
     const { name, about, avatar, email, password } = req.body;
 
     if (!email || !password) {
@@ -172,7 +168,6 @@ const login = async (req, res, next) => {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: HttpResponseMessage.SUCCESS,
       data: {
         token,
         user: userWithoutPassword,

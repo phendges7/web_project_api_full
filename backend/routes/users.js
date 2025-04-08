@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const auth = require("../middlewares/auth");
 
 // Importa os middlewares de validação
 const {
@@ -20,7 +21,7 @@ const {
 // Define as rotas
 router.post("/signup", validateCreateUser, createUser);
 router.post("/signin", validateLogin, login);
-router.get("/me", getCurrentUser);
+router.get("/me", auth, getCurrentUser);
 router.patch("/me", validateUpdateUser, updateUserInfo);
 router.patch("/me/avatar", validateUpdateAvatar, updateAvatar);
 

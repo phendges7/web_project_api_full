@@ -7,7 +7,7 @@ const auth = (req, res, next) => {
   // Verifica se o token JWT está presente no cabeçalho Authorization
   // Se não houver token, retorna um erro de não autorizado
   const { authorization } = req.headers;
-  if (!authorization) {
+  if (!authorization || !authorization.startsWith("Bearer ")) {
     return res.status(HttpStatus.UNAUTHORIZED).json({
       message: HttpResponseMessage.UNAUTHORIZED,
     });
