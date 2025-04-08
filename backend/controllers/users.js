@@ -33,7 +33,7 @@ const getCurrentUser = async (req, res, next) => {
 const createUser = async (req, res, next) => {
   try {
     debugger;
-    const { name, about, avatar, email, password } = req.body;
+    const { email, password } = req.body;
 
     if (!email || !password) {
       throwError(
@@ -45,9 +45,6 @@ const createUser = async (req, res, next) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({
-      name,
-      about,
-      avatar,
       email,
       password: hashedPassword,
     });
@@ -55,15 +52,10 @@ const createUser = async (req, res, next) => {
     const userWithoutPassword = newUser.toObject();
     delete userWithoutPassword.password;
 
-    res.status(HttpStatus.CREATED).json({
-      success: true,
-      message: HttpResponseMessage.CREATED,
-      data: userWithoutPassword,
-    });
+    res.status(HttpStatus.CREATED).json(userWithoutPassword);
   } catch (error) {
-    if (error.name === "MongoError" && error.code === 11000) {
+    if (error.code === 11000) {
       error.message = "Email já cadastrado";
-      error.details = "O email informado já está em uso";
       error.status = HttpStatus.BAD_REQUEST;
     }
     next(error);

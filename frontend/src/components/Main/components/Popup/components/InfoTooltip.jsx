@@ -3,32 +3,50 @@ import successIcon from "../../../../../images/successIcon.png";
 import failIcon from "../../../../../images/failIcon.png";
 import { useEffect } from "react";
 
-export default function InfoTooltip({ isOpen, onClose, isSuccess }) {
+export default function InfoTooltip({
+  isOpen,
+  onClose,
+  isSuccess,
+  errorType = null, // 'register' | 'login' | 'permission'
+}) {
   const messages = {
-    success: {
+    registerSuccess: {
       text: "Cadastro realizado com sucesso!\nAgora você pode fazer login.",
       icon: successIcon,
       altText: "Ícone de sucesso",
     },
-    error: {
+    registerError: {
       text: "Ops, algo deu errado!\nPor favor, tente novamente.",
       icon: failIcon,
       altText: "Ícone de erro",
     },
+    loginError: {
+      text: "Falha no login!\nVerifique seu email e senha.",
+      icon: failIcon,
+      altText: "Ícone de erro",
+    },
+    permissionError: {
+      text: "Você não tem permissão para excluir este card.",
+      icon: failIcon,
+      altText: "Ícone de erro de permissão",
+    },
   };
 
-  const { text, icon, altText } = isSuccess ? messages.success : messages.error;
+  const getMessage = () => {
+    if (errorType === "permission") return messages.permissionError;
+    if (errorType === "login") return messages.loginError;
+    return isSuccess ? messages.registerSuccess : messages.registerError;
+  };
+
+  const { text, icon, altText } = getMessage();
 
   useEffect(() => {
     let timer;
-    // Fecha popup depois de 5 segundos apenas no sucesso
     if (isOpen && isSuccess) {
       timer = setTimeout(() => {
         onClose();
       }, 5000);
     }
-
-    // Limpa o timer se o componente for desmontado ou se isOpen mudar
     return () => clearTimeout(timer);
   }, [isOpen, isSuccess, onClose]);
 

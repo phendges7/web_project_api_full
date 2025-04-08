@@ -4,18 +4,19 @@ const { HttpStatus, HttpResponseMessage } = require("../enums/http.js");
 // controller para buscar todos os cards
 const getCards = async (req, res, next) => {
   try {
-    const cards = await Card.find({}).populate("owner");
-
-    if (!cards) {
-      return res.status(HttpStatus.NOT_FOUND).json({
-        message: "Nenhum card encontrado",
-      });
+    // Verifique se o modelo está acessível
+    if (!Card || !Card.find) {
+      throw new Error("Modelo Card não está disponível");
     }
+
+    const cards = await Card.find({})
+      .populate("owner", "name about avatar _id")
+      .populate("likes", "name about avatar _id");
 
     res.status(HttpStatus.OK).json(cards);
   } catch (error) {
-    console.error("Erro ao buscar cards:", error);
-    next(error); // Passa para o middleware de erro
+    console.error("Erro detalhado:", error);
+    next(error);
   }
 };
 
@@ -49,46 +50,35 @@ const createCard = async (req, res) => {
 };
 
 // controller deletar card por id
-const deleteCard = async (req, res) => {
+const deleteCard = async (req, res, next) => {
   try {
-    const { cardId } = req.params;
+    const card = await Card.findById(req.params.cardId).populate(
+      "owner",
+      "_id"
+    );
 
-    // Busca o card pelo ID
-    const card = await card.findById(cardId);
     if (!card) {
       return res.status(HttpStatus.NOT_FOUND).json({
-        message: HttpResponseMessage.NOT_FOUND,
+        success: false,
+        message: "Card não encontrado",
       });
     }
 
-    // Verifica se o usuário é o dono do card
-    if (card.owner.toString() !== req.user._id.toString()) {
+    if (card.owner.toString() !== req.user._id) {
       return res.status(HttpStatus.FORBIDDEN).json({
-        message: HttpResponseMessage.FORBIDDEN,
+        success: false,
+        message: "Você não tem permissão para excluir este card",
       });
     }
 
-    // Deleta o card
-    await Card.findByIdAndDelete(cardId);
-    res.json({
-      message: HttpResponseMessage.SUCCESS,
+    await Card.findByIdAndDelete(req.params.cardId);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Card excluído com sucesso",
     });
-    // Captura erros
   } catch (error) {
-    console.error(`Erro ao deletar cartão: ${error.message}`);
-
-    // Verifica se o ID é inválido
-    if (error.name === "CastError") {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        message: HttpResponseMessage.BAD_REQUEST,
-        details: "ID inválido",
-      });
-    }
-
-    // Retorna erro interno do servidor
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      message: HttpResponseMessage.SERVER_ERROR,
-    });
+    next(error);
   }
 };
 

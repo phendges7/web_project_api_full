@@ -26,11 +26,6 @@ export default function Main({
     const fetchInitialData = async () => {
       try {
         const [userData, cardsData] = await fetchUserAndCards();
-        console.log("Dados recebidos:", {
-          currentUserId: currentUser._id,
-          userData,
-          cardsData,
-        });
 
         setCurrentUser((prev) => ({
           ...prev,
@@ -48,13 +43,6 @@ export default function Main({
           : [];
 
         setCards(processedCards);
-        console.log(
-          "Cards processados:",
-          processedCards.map((c) => ({
-            id: c._id,
-            isLiked: c.isLiked,
-          }))
-        );
       } catch {
         console.error("Erro ao carregar dados iniciais:", Error);
       } finally {

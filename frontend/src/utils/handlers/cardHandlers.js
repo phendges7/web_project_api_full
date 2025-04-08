@@ -14,6 +14,38 @@ export async function handleCardLike(card) {
   await api.changeLikeCardStatus(card._id, !card.isLiked);
 }
 
-export async function handleCardDelete(card) {
-  await api.deleteCard(card._id);
-}
+export const handleCardDelete = async (card, setCards, currentUser) => {
+  try {
+    // Verificação de permissão no frontend (opcional mas recomendado)
+    if (card.owner._id !== currentUser._id) {
+      return {
+        success: false,
+        message: "Você não tem permissão para excluir este card",
+        type: "permission",
+        shouldRemove: false, // Não remove visualmente
+      };
+    }
+
+    const response = await api.deleteCard(card._id);
+
+    if (response.success) {
+      return {
+        success: true,
+        shouldRemove: true, // Remove visualmente apenas após sucesso
+      };
+    }
+
+    return {
+      success: false,
+      message: response.message || "Erro ao excluir card",
+      shouldRemove: false,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error.message || "Erro ao excluir card",
+      type: error.type,
+      shouldRemove: false,
+    };
+  }
+};

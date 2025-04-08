@@ -53,10 +53,12 @@ function App() {
   });
 
   // Estados de controladores
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false);
-  const [isRegistrationSuccess, setIsRegistrationSuccess] = useState(false);
-  const [popup, setPopup] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Estado se o usuário está logado
+  const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false); // Estado se o popup de informação está aberto
+  const [isRegistrationSuccess, setIsRegistrationSuccess] = useState(false); // Estado de sucesso do registro
+  const [isLoginSuccess, setIsLoginSuccess] = useState(false); // Estado de sucesso do login
+  const [errorType, setErrorType] = useState(null); // Estado de tipo de erro para o popup de informação
+  const [popup, setPopup] = useState(null); // Estado do popup
   const [cards, setCards] = useState([]); // Estado de cards adicionado
 
   const navigate = useNavigate();
@@ -112,13 +114,11 @@ function App() {
   const onLogin = async ({ email, password }) => {
     try {
       const response = await api.loginUser({ email, password });
-      console.log("Dados do login:", response);
-      console.log("Dados do token:", response.data.token);
-      console.log("Dados do usuário:", response.data.user);
-      if (response.data && response.data.token) {
-        setToken(response.data.token);
 
+      if (response && response.data && response.data.token) {
+        setToken(response.data.token);
         const userData = response.data.user;
+
         setCurrentUser({
           email: userData.email,
           name: userData.name,
@@ -130,15 +130,20 @@ function App() {
         const cardsData = await api.getCards();
         setCards(cardsData || []);
 
+        setIsLoginSuccess(true); // Marca login como sucesso
         setIsLoggedIn(true);
         navigate(location.state?.from || "/");
+      } else {
+        // Caso a resposta não venha no formato esperado
+        setIsLoginSuccess(false);
+        setIsInfoTooltipOpen(true);
       }
     } catch (error) {
       console.error("Erro ao fazer login: ", error);
-      setIsInfoTooltipOpen(true);
+      setIsLoginSuccess(false);
+      setIsInfoTooltipOpen(true); // Mostra o popup de erro
       removeToken();
       setIsLoggedIn(false);
-      throw error;
     }
   };
 
@@ -201,13 +206,21 @@ function App() {
 
   // FUNCTION - DELETAR CARD
   const onCardDelete = async (card) => {
-    try {
-      await handleCardDelete(card, setCards);
-      setCards((prevCards) => prevCards.filter((c) => c._id !== card._id)); // Atualizar estado de cards
+    debugger;
+    const result = await handleCardDelete(card, setCards, currentUser);
+
+    if (result.success && result.shouldRemove) {
+      // Remove visualmente apenas após confirmação do servidor
+      setCards((prevCards) => prevCards.filter((c) => c._id !== card._id));
       onClosePopup();
-    } catch (error) {
-      handleError(error);
-      throw error;
+    } else {
+      // Mostra feedback de erro sem remover o card
+      setIsRegistrationSuccess(false);
+      setIsLoginSuccess(false);
+      setIsInfoTooltipOpen(true);
+
+      // Log para debug (pode remover depois)
+      console.error("Falha ao excluir card:", result.message);
     }
   };
 
@@ -311,8 +324,12 @@ function App() {
           {/*------------- INFO TOOLTIP -------------*/}
           <InfoTooltip
             isOpen={isInfoTooltipOpen}
-            onClose={() => setIsInfoTooltipOpen(false)}
-            isSuccess={isRegistrationSuccess}
+            onClose={() => {
+              setIsInfoTooltipOpen(false);
+              setErrorType(null);
+            }}
+            isSuccess={isRegistrationSuccess || isLoginSuccess}
+            errorType={errorType}
           />
         </CardContext.Provider>
       </CurrentUserContext.Provider>

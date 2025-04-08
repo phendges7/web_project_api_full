@@ -56,7 +56,8 @@ export const loginUser = ({ email, password }) => {
 
 // FUNCTION - registrar usuario
 export const registerUser = ({ email, password }) => {
-  return fetch("/api/signup", {
+  console.log("Dados do registro:", { email, password });
+  return fetch(`${BASE_URL}/signup`, {
     method: "POST",
     headers: getHeaders(),
     body: JSON.stringify({ email, password }),
@@ -134,8 +135,20 @@ export const deleteCard = (cardId) => {
     method: "DELETE",
     headers: getHeaders(),
   })
-    .then(handleResponse)
-    .catch(handleError);
+    .then(async (res) => {
+      const data = await res.json();
+      if (!res.ok) {
+        throw {
+          ...data,
+          status: res.status,
+        };
+      }
+      return data;
+    })
+    .catch((error) => {
+      console.error("Erro na API:", error);
+      return Promise.reject(error);
+    });
 };
 
 // FUNCTION - obter dados do usuario e cards
