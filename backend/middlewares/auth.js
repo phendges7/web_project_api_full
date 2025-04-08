@@ -3,6 +3,7 @@ const { HttpStatus, HttpResponseMessage } = require("../enums/http");
 
 const auth = (req, res, next) => {
   console.log("Rota atual:", req.path);
+
   // Verifica se o token JWT está presente no cabeçalho Authorization
   // Se não houver token, retorna um erro de não autorizado
   const { authorization } = req.headers;
@@ -11,6 +12,7 @@ const auth = (req, res, next) => {
       message: HttpResponseMessage.UNAUTHORIZED,
     });
   }
+
   // Remove o prefixo "Bearer " do token
   // Verifica se o token é válido
   const token = authorization.replace("Bearer ", "");

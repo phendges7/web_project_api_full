@@ -39,7 +39,6 @@ import CardContext from "../contexts/CardContext";
 import AppContext from "../contexts/AppContext";
 
 // Utils
-import * as auth from "../../../backend/middlewares/auth";
 import * as api from "../utils/api";
 import { setToken, getToken, removeToken } from "../utils/token";
 import { Popups } from "./Main/components/constants";
@@ -69,24 +68,26 @@ function App() {
     if (token) {
       const loadData = async () => {
         try {
-          // 1. Valida token com auth API
-          const authData = await auth.getUserInfo(token);
-
-          // 2. Carrega dados completos do usuário
+          // 1. Carrega dados completos do usuário
           const userData = await api.getUserInfo();
 
+          // 2. Carrega dados de cards
+          const cardsData = await api.getCards();
+
           setCurrentUser({
-            email: authData?.data.email,
-            _id: authData.data?._id || userData?._id || "",
+            email: userData?.email,
+            _id: userData?._id,
             name: userData?.name,
             about: userData?.about,
             avatar: userData?.avatar,
           });
 
+          setCards(cardsData || []);
           setIsLoggedIn(true);
           navigate(location.state?.from || "/");
         } catch {
           removeToken();
+          setIsLoggedIn(false);
         }
       };
 
@@ -97,7 +98,7 @@ function App() {
   // FUNCTION - REGISTRO
   const onRegister = async ({ email, password }) => {
     try {
-      await auth.register({ email, password });
+      await api.registerUser({ email, password });
       setIsRegistrationSuccess(true);
       navigate("/signin");
     } catch {
@@ -110,25 +111,24 @@ function App() {
   // FUNCTION - LOGIN
   const onLogin = async ({ email, password }) => {
     try {
-      const jwtToken = await auth.authorize(email, password);
-      if (!jwtToken) throw new Error("Token não recebido");
+      const data = await api.loginUser({ email, password });
+      if (data.token) {
+        setToken(data.token);
+        const userData = await auth.getUserInfo();
 
-      const userData = await auth.getUserInfo(jwtToken);
-
-      setCurrentUser({
-        email,
-        name: userData.name,
-        about: userData.about,
-        avatar: userData.avatar,
-        _id: userData._id,
-      });
-
-      setToken(jwtToken);
-      setIsLoggedIn(true);
-      navigate(location.state?.from || "/");
+        setCurrentUser({
+          email: userData.email,
+          name: userData.name,
+          about: userData.about,
+          avatar: userData.avatar,
+          _id: userData._id,
+        });
+        setIsLoggedIn(true);
+        navigate(location.state?.from || "/");
+      }
     } catch (error) {
       console.error("Erro ao fazer login: ", error);
-      setIsLoginTooltipOpen(true);
+      setIsInfoTooltipOpen(true);
       removeToken();
       setIsLoggedIn(false);
       throw error;

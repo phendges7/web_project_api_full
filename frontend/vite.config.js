@@ -7,8 +7,11 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  proxy: {
+      '/api': 'http://localhost:7000' // Redireciona para o backend
+    },
   build: {
-    outDir: '../frontend',  // Cria direto no backend
+    outDir: '../build',
     emptyOutDir: true
   }
 });

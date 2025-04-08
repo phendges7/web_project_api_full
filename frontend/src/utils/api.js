@@ -1,5 +1,6 @@
-export const BASE_URL = "http://localhost:3000";
+const BASE_URL = "http://localhost:7000"; // Substitua pelo URL da sua API
 
+// FUNCTION - pegar cabecalhos
 const getHeaders = () => {
   const token = localStorage.getItem("token");
   return {
@@ -40,9 +41,31 @@ export const handleError = (err) => {
   }
 };
 
+// FUNCTION - login usuario
+export const loginUser = ({ email, password }) => {
+  return fetch(`${BASE_URL}/signin`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify({ email, password }),
+  })
+    .then(handleResponse)
+    .catch(handleError);
+};
+
+// FUNCTION - registrar usuario
+export const registerUser = ({ email, password }) => {
+  return fetch("/api/signup", {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify({ email, password }),
+  })
+    .then(handleResponse)
+    .catch(handleError);
+};
+
 // FUNCTION - obter dados do usuario
 export const getUserInfo = () => {
-  return fetch(`${BASE_URL}/users/me`, {
+  return fetch("/api/users/me", {
     method: "GET",
     headers: getHeaders(),
   })
@@ -51,8 +74,8 @@ export const getUserInfo = () => {
 };
 
 // FUNCTION - obter dados dos cards
-export const getInitialCards = () => {
-  return fetch(`${BASE_URL}/cards`, {
+export const getCards = () => {
+  return fetch(`/api/cards`, {
     method: "GET",
     headers: getHeaders(),
   })
@@ -62,7 +85,7 @@ export const getInitialCards = () => {
 
 // FUNCTION - atualizar dados do usuario
 export const updateUserInfo = ({ name, about }) => {
-  return fetch(`${BASE_URL}/users/me`, {
+  return fetch(`/api/users/me`, {
     method: "PATCH",
     headers: getHeaders(),
     body: JSON.stringify({ name, about }),
@@ -73,7 +96,7 @@ export const updateUserInfo = ({ name, about }) => {
 
 // FUNCTION - atualizar avatar do usuario
 export const updateAvatar = (avatar) => {
-  return fetch(`${BASE_URL}/users/me/avatar`, {
+  return fetch(`/api/users/me/avatar`, {
     method: "PATCH",
     headers: getHeaders(),
     body: JSON.stringify({ avatar }),
@@ -84,7 +107,7 @@ export const updateAvatar = (avatar) => {
 
 // FUNCTION - adicionar novo card
 export const addCard = ({ name, link }) => {
-  return fetch(`${BASE_URL}/cards`, {
+  return fetch(`/api/cards`, {
     method: "POST",
     headers: getHeaders(),
     body: JSON.stringify({ name, link }),
@@ -95,7 +118,7 @@ export const addCard = ({ name, link }) => {
 
 // FUNCTION - mudar status de like do card
 export const changeLikeCardStatus = (cardId, isLiked) => {
-  return fetch(`${BASE_URL}/cards/${cardId}/likes`, {
+  return fetch(`/api/cards/${cardId}/likes`, {
     method: isLiked ? "PUT" : "DELETE",
     headers: getHeaders(),
   })
@@ -105,7 +128,7 @@ export const changeLikeCardStatus = (cardId, isLiked) => {
 
 // FUNCTION - deletar card
 export const deleteCard = (cardId) => {
-  return fetch(`${BASE_URL}/cards/${cardId}`, {
+  return fetch(`/api/cards/${cardId}`, {
     method: "DELETE",
     headers: getHeaders(),
   })

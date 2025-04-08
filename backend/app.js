@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
 const express = require("express");
 const path = require("path");
+const cors = require("cors");
 const { errors } = require("celebrate");
 
 const app = express();
-const { PORT = 3000 } = process.env;
+const { PORT = 7000 } = process.env;
 
 // Importa os controladores de usuário
 const { login, createUser } = require("./controllers/users"); // Adicione esta linha!
@@ -22,6 +23,7 @@ const {
 } = require("./validators/usersValidator");
 
 // Middlewares
+app.use(cors({ origin: "http://localhost:3000" }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../frontend")));
 
