@@ -18,7 +18,8 @@ const throwError = (message, status, type) => {
 // controller para buscar usuario atuals
 const getCurrentUser = async (req, res, next) => {
   try {
-    console.log("ID do usuário:", req.user._id);
+    console.log("Headers recebidos:", req.headers);
+    console.log("Token decodificado:", req.user);
 
     const user = await User.findById(req.user._id);
 
@@ -27,10 +28,7 @@ const getCurrentUser = async (req, res, next) => {
     }
 
     console.log("Usuário encontrado:", user);
-    res.status(200).json({
-      success: true,
-      data: user,
-    });
+    res.status(200).json(user.toObject());
   } catch (error) {
     next(error);
   }

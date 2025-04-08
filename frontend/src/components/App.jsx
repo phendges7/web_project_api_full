@@ -68,6 +68,7 @@ function App() {
     if (token) {
       const loadData = async () => {
         try {
+          debugger;
           // 1. Carrega dados completos do usuário
           const userData = await api.getUserInfo();
 
@@ -86,7 +87,8 @@ function App() {
           setIsLoggedIn(true);
           navigate(location.state?.from || "/");
         } catch {
-          removeToken();
+          debugger;
+          /* removeToken();*/
           setIsLoggedIn(false);
         }
       };
@@ -111,11 +113,14 @@ function App() {
   // FUNCTION - LOGIN
   const onLogin = async ({ email, password }) => {
     try {
-      const data = await api.loginUser({ email, password });
-      if (data.token) {
-        setToken(data.token);
-        const userData = await auth.getUserInfo();
+      const response = await api.loginUser({ email, password });
+      console.log("Dados do login:", response);
+      console.log("Dados do token:", response.data.token);
+      console.log("Dados do usuário:", response.data.user);
+      if (response.data && response.data.token) {
+        setToken(response.data.token);
 
+        const userData = response.data.user;
         setCurrentUser({
           email: userData.email,
           name: userData.name,
@@ -123,13 +128,18 @@ function App() {
           avatar: userData.avatar,
           _id: userData._id,
         });
+
+        const cardsData = await api.getCards();
+        setCards(cardsData || []);
+
         setIsLoggedIn(true);
         navigate(location.state?.from || "/");
       }
     } catch (error) {
       console.error("Erro ao fazer login: ", error);
       setIsInfoTooltipOpen(true);
-      removeToken();
+      debugger;
+      /*removeToken();*/
       setIsLoggedIn(false);
       throw error;
     }

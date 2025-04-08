@@ -27,9 +27,9 @@ export default function Main({
       try {
         const [userData, cardsData] = await fetchUserAndCards();
         console.log("Dados recebidos:", {
+          currentUserId: currentUser._id,
           userData,
           cardsData,
-          currentUserId: currentUser._id,
         });
 
         setCurrentUser((prev) => ({

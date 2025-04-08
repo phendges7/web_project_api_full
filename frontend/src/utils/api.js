@@ -1,8 +1,10 @@
+import { getToken } from "./token";
+
 const BASE_URL = "http://localhost:7000"; // Substitua pelo URL da sua API
 
 // FUNCTION - pegar cabecalhos
 const getHeaders = () => {
-  const token = localStorage.getItem("token");
+  const token = getToken();
   return {
     Accept: "application/json",
     "Content-Type": "application/json",
@@ -65,7 +67,7 @@ export const registerUser = ({ email, password }) => {
 
 // FUNCTION - obter dados do usuario
 export const getUserInfo = () => {
-  return fetch("/api/users/me", {
+  return fetch(`${BASE_URL}/users/me`, {
     method: "GET",
     headers: getHeaders(),
   })
@@ -75,7 +77,7 @@ export const getUserInfo = () => {
 
 // FUNCTION - obter dados dos cards
 export const getCards = () => {
-  return fetch(`/api/cards`, {
+  return fetch(`${BASE_URL}/cards`, {
     method: "GET",
     headers: getHeaders(),
   })
@@ -85,7 +87,7 @@ export const getCards = () => {
 
 // FUNCTION - atualizar dados do usuario
 export const updateUserInfo = ({ name, about }) => {
-  return fetch(`/api/users/me`, {
+  return fetch(`${BASE_URL}/users/me`, {
     method: "PATCH",
     headers: getHeaders(),
     body: JSON.stringify({ name, about }),
@@ -96,7 +98,7 @@ export const updateUserInfo = ({ name, about }) => {
 
 // FUNCTION - atualizar avatar do usuario
 export const updateAvatar = (avatar) => {
-  return fetch(`/api/users/me/avatar`, {
+  return fetch(`${BASE_URL}/users/me/avatar`, {
     method: "PATCH",
     headers: getHeaders(),
     body: JSON.stringify({ avatar }),
@@ -107,7 +109,7 @@ export const updateAvatar = (avatar) => {
 
 // FUNCTION - adicionar novo card
 export const addCard = ({ name, link }) => {
-  return fetch(`/api/cards`, {
+  return fetch(`${BASE_URL}/cards`, {
     method: "POST",
     headers: getHeaders(),
     body: JSON.stringify({ name, link }),
@@ -118,7 +120,7 @@ export const addCard = ({ name, link }) => {
 
 // FUNCTION - mudar status de like do card
 export const changeLikeCardStatus = (cardId, isLiked) => {
-  return fetch(`/api/cards/${cardId}/likes`, {
+  return fetch(`${BASE_URL}/cards/${cardId}/likes`, {
     method: isLiked ? "PUT" : "DELETE",
     headers: getHeaders(),
   })
@@ -128,7 +130,7 @@ export const changeLikeCardStatus = (cardId, isLiked) => {
 
 // FUNCTION - deletar card
 export const deleteCard = (cardId) => {
-  return fetch(`/api/cards/${cardId}`, {
+  return fetch(`${BASE_URL}/cards/${cardId}`, {
     method: "DELETE",
     headers: getHeaders(),
   })
@@ -141,7 +143,7 @@ export const fetchUserAndCards = async () => {
   try {
     const [userData, cardsData] = await Promise.all([
       getUserInfo(),
-      getInitialCards(),
+      getCards(),
     ]);
     return [userData, cardsData || []];
   } catch (error) {
