@@ -14,6 +14,7 @@ const getHeaders = () => {
 
 // FUNCTION - tratar respostas
 export const handleResponse = (res) => {
+  console.log("Response:", res);
   if (res.ok) {
     return res.json();
   }
@@ -110,10 +111,12 @@ export const updateAvatar = (avatar) => {
 
 // FUNCTION - adicionar novo card
 export const addCard = ({ name, link }) => {
+  console.log("Dados do novo card:", { name, link });
   return fetch(`${BASE_URL}/cards`, {
     method: "POST",
     headers: getHeaders(),
     body: JSON.stringify({ name, link }),
+    signal: AbortSignal.timeout(5000),
   })
     .then(handleResponse)
     .catch(handleError);

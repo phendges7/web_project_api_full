@@ -10,9 +10,9 @@ export default function EditProfile() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsSubmitting(true);
-
     try {
       await handleUpdateUser({ name, about: description });
+      onClose(); // Fecha o popup após sucesso
     } catch (error) {
       console.error("Erro ao atualizar perfil:", error);
     } finally {

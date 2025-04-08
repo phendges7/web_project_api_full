@@ -1,3 +1,4 @@
+import React from "react";
 import { useEffect, useState } from "react";
 import {
   Routes,
@@ -75,7 +76,7 @@ function App() {
 
           // 2. Carrega dados de cards
           const cardsData = await api.getCards();
-
+          console.log(cardsData);
           setCurrentUser({
             email: userData?.email,
             _id: userData?._id,
@@ -181,16 +182,12 @@ function App() {
   // FUNCTION - CRIAR NOVO CARD
   const onAddCard = async ({ name, link }) => {
     try {
-      const newCard = await handleCardFormSubmit({
-        name,
-        link,
-      });
-      setCards((prevCards) => [newCard, ...prevCards]); // Atualizar estado de cards
+      const newCard = await handleCardFormSubmit({ name, link });
+      setCards([newCard, ...cards]);
       onClosePopup();
-      return newCard;
     } catch (error) {
-      handleError(error);
-      throw error;
+      console.error("Falha ao criar card:", error);
+      setIsInfoTooltipOpen(true);
     }
   };
 
@@ -206,7 +203,6 @@ function App() {
 
   // FUNCTION - DELETAR CARD
   const onCardDelete = async (card) => {
-    debugger;
     const result = await handleCardDelete(card, setCards, currentUser);
 
     if (result.success && result.shouldRemove) {
@@ -225,12 +221,26 @@ function App() {
   };
 
   // FUNCTION - ABRIR POPUP
-  const onOpenPopup = (popupType, ...args) => {
+  const onOpenPopup = (popupType, additionalData) => {
     if (Popups[popupType]) {
-      const popupConfig =
-        typeof Popups[popupType] === "function"
-          ? Popups[popupType](...args)
-          : Popups[popupType];
+      let popupConfig;
+
+      if (typeof Popups[popupType] === "function") {
+        // Para popups dinâmicos como imagePopup
+        popupConfig = Popups[popupType](additionalData);
+      } else {
+        // Para popups estáticos
+        popupConfig = {
+          ...Popups[popupType],
+          children: React.cloneElement(Popups[popupType].children, {
+            onClose: onClosePopup,
+            ...(popupType === "addPlacePopup" && {
+              handleCardFormSubmit: onAddCard,
+            }),
+          }),
+        };
+      }
+
       handleOpenPopup(setPopup, popupConfig);
     } else {
       console.error(`Tipo de popup desconhecido: ${popupType}`);

@@ -9,9 +9,9 @@ const getCards = async (req, res, next) => {
       throw new Error("Modelo Card não está disponível");
     }
 
-    const cards = await Card.find({})
-      .populate("owner", "name about avatar _id")
-      .populate("likes", "name about avatar _id");
+    const cards = await Card.find()
+      .populate("owner", "name about avatar")
+      .populate("likes", "name about avatar");
 
     res.status(HttpStatus.OK).json(cards);
   } catch (error) {
@@ -24,28 +24,17 @@ const getCards = async (req, res, next) => {
 const createCard = async (req, res) => {
   try {
     const { name, link } = req.body;
-    const owner = req.user._id;
 
-    const newCard = await Card.create({ name, link, owner });
-
-    // Retorna o card criado
-    res.status(HttpStatus.CREATED).json({
-      message: HttpResponseMessage.CREATED,
-      data: newCard,
+    // O owner é automaticamente pego do token JWT
+    const card = await Card.create({
+      name,
+      link,
+      owner: req.user._id, // Usuário autenticado
     });
-    // Captura erros
+
+    res.status(201).json(card);
   } catch (error) {
-    console.error(`Erro ao criar cartão: ${error.message}`);
-
-    if (error.name === "ValidationError") {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        message: HttpResponseMessage.BAD_REQUEST,
-        details: error.message,
-      });
-    }
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      message: HttpResponseMessage.INTERNAL_SERVER_ERROR,
-    });
+    res.status(400).json({ message: error.message });
   }
 };
 

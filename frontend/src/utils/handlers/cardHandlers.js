@@ -1,14 +1,14 @@
 import * as api from "../api";
 
-export async function handleCardFormSubmit({ name, link }) {
+export const handleCardFormSubmit = async ({ name, link }) => {
   try {
     const newCard = await api.addCard({ name, link });
-    return newCard;
+    setCards([newCard, ...cards]);
+    return { success: true, card: newCard };
   } catch (error) {
-    console.error("Error adding card:", error);
-    throw error;
+    return { success: false, error };
   }
-}
+};
 
 export async function handleCardLike(card) {
   await api.changeLikeCardStatus(card._id, !card.isLiked);
