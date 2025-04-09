@@ -8,7 +8,6 @@ export default function PopupWithForm({
   children,
 }) {
   const handleSubmit = (event) => {
-    debugger;
     const formData = new FormData(event.target);
     const formValues = Object.fromEntries(formData.entries());
     onSubmit(formValues);

@@ -32,7 +32,6 @@ const getCurrentUser = async (req, res, next) => {
 // controller para criar um usuario
 const createUser = async (req, res, next) => {
   try {
-    debugger;
     const { email, password } = req.body;
 
     if (!email || !password) {
