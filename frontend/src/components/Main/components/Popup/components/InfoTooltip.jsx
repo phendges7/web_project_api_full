@@ -35,6 +35,9 @@ export default function InfoTooltip({
   const getMessage = () => {
     if (errorType === "permission") return messages.permissionError;
     if (errorType === "login") return messages.loginError;
+    if (errorType === "register") {
+      return isSuccess ? messages.registerSuccess : messages.registerError;
+    }
     return isSuccess ? messages.registerSuccess : messages.registerError;
   };
 

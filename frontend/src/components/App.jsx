@@ -76,7 +76,6 @@ function App() {
 
           // 2. Carrega dados de cards
           const cardsData = await api.getCards();
-          console.log(cardsData);
           setCurrentUser({
             email: userData?.email,
             _id: userData?._id,
@@ -101,13 +100,20 @@ function App() {
   // FUNCTION - REGISTRO
   const onRegister = async ({ email, password }) => {
     try {
-      await api.registerUser({ email, password });
+      const response = await api.registerUser({ email, password });
+
+      // Verifica se houve erro na resposta da API
+      if (response && response.type) {
+        throw new Error(response.message || "Erro no registro");
+      }
       setIsRegistrationSuccess(true);
       navigate("/signin");
-    } catch {
+    } catch (error) {
+      console.error("Erro no registro:", error);
       setIsRegistrationSuccess(false);
+      setErrorType("register"); // Define o tipo de erro específico
     } finally {
-      setIsInfoTooltipOpen(true);
+      setIsInfoTooltipOpen(true); // Sempre abre o popup, sucesso ou erro
     }
   };
 
@@ -142,7 +148,8 @@ function App() {
     } catch (error) {
       console.error("Erro ao fazer login: ", error);
       setIsLoginSuccess(false);
-      setIsInfoTooltipOpen(true); // Mostra o popup de erro
+      setIsInfoTooltipOpen(true);
+      setErrorType("login"); // Mostra o popup de erro
       removeToken();
       setIsLoggedIn(false);
     }
@@ -151,15 +158,42 @@ function App() {
   // FUNCTION - ATUALIZAR DADOS DO USUARIO
   const onUpdateProfile = async ({ name, about }) => {
     try {
+      // Atualização otimista imediata
+      setCurrentUser((prev) => ({
+        ...prev,
+        name,
+        about,
+      }));
+
+      // Chamada ao handler existente
       const updatedUser = await handleProfileFormSubmit({
         name,
         about,
-        setCurrentUser,
+        setCurrentUser: (updateFn) => {
+          // Esta função será chamada pelo handler para atualizar o estado
+          setCurrentUser((prev) => {
+            const updated = updateFn(prev);
+            return {
+              ...updated,
+              // Garante que os campos não sejam undefined
+              name: updated.name || name,
+              about: updated.about || about,
+            };
+          });
+        },
       });
+
       onClosePopup();
       return updatedUser;
     } catch (error) {
-      handleError(error);
+      // Reverte para os valores originais em caso de erro
+      setCurrentUser((prev) => ({
+        ...prev,
+        name: currentUser.name,
+        about: currentUser.about,
+      }));
+
+      console.error("Erro ao atualizar perfil:", error);
       throw error;
     }
   };
@@ -167,14 +201,35 @@ function App() {
   // FUNCTION - ATUALIZAR AVATAR
   const onUpdateAvatar = async (avatarUrl) => {
     try {
-      const updatedAvatar = await handleAvatarFormSubmit({
+      // Atualização otimista
+      setCurrentUser((prev) => ({
+        ...prev,
+        avatar: avatarUrl,
+      }));
+
+      const updatedUser = await handleAvatarFormSubmit({
         avatarUrl,
-        setCurrentUser,
+        setCurrentUser: (updateFn) => {
+          setCurrentUser((prev) => {
+            const updated = updateFn(prev);
+            return {
+              ...updated,
+              avatar: updated.avatar || avatarUrl, // Fallback
+            };
+          });
+        },
       });
+
       onClosePopup();
-      return updatedAvatar;
+      return updatedUser;
     } catch (error) {
-      handleError(error);
+      // Reverte em caso de erro
+      setCurrentUser((prev) => ({
+        ...prev,
+        avatar: currentUser.avatar,
+      }));
+
+      console.error("Erro ao atualizar avatar:", error);
       throw error;
     }
   };
@@ -182,12 +237,19 @@ function App() {
   // FUNCTION - CRIAR NOVO CARD
   const onAddCard = async ({ name, link }) => {
     try {
-      const newCard = await handleCardFormSubmit({ name, link });
-      setCards([newCard, ...cards]);
-      onClosePopup();
+      const result = await handleCardFormSubmit({ name, link });
+
+      if (result.success) {
+        // Atualização otimista com rolagem para o topo
+        setCards((prevCards) => [result.card, ...prevCards]);
+        onClosePopup();
+      } else {
+        throw result.error;
+      }
     } catch (error) {
       console.error("Falha ao criar card:", error);
       setIsInfoTooltipOpen(true);
+      setErrorType("card_creation");
     }
   };
 
@@ -203,20 +265,20 @@ function App() {
 
   // FUNCTION - DELETAR CARD
   const onCardDelete = async (card) => {
-    const result = await handleCardDelete(card, setCards, currentUser);
+    try {
+      const result = await handleCardDelete(card, currentUser._id);
 
-    if (result.success && result.shouldRemove) {
-      // Remove visualmente apenas após confirmação do servidor
-      setCards((prevCards) => prevCards.filter((c) => c._id !== card._id));
-      onClosePopup();
-    } else {
-      // Mostra feedback de erro sem remover o card
-      setIsRegistrationSuccess(false);
-      setIsLoginSuccess(false);
+      if (result.success && result.shouldRemove) {
+        setCards((prevCards) => prevCards.filter((c) => c._id !== card._id));
+        onClosePopup();
+      } else {
+        setIsInfoTooltipOpen(true);
+        setErrorType("permission");
+      }
+    } catch (error) {
+      console.error("Erro ao deletar card:", error);
       setIsInfoTooltipOpen(true);
-
-      // Log para debug (pode remover depois)
-      console.error("Falha ao excluir card:", result.message);
+      setErrorType("permission");
     }
   };
 

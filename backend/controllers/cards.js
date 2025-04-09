@@ -40,11 +40,9 @@ const createCard = async (req, res) => {
 
 // controller deletar card por id
 const deleteCard = async (req, res, next) => {
+  debugger;
   try {
-    const card = await Card.findById(req.params.cardId).populate(
-      "owner",
-      "_id"
-    );
+    const card = await Card.findById(req.params.cardId);
 
     if (!card) {
       return res.status(HttpStatus.NOT_FOUND).json({
@@ -65,6 +63,7 @@ const deleteCard = async (req, res, next) => {
     res.status(HttpStatus.OK).json({
       success: true,
       message: "Card excluído com sucesso",
+      shouldRemove: true,
     });
   } catch (error) {
     next(error);

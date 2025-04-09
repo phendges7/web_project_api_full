@@ -14,7 +14,6 @@ const getHeaders = () => {
 
 // FUNCTION - tratar respostas
 export const handleResponse = (res) => {
-  console.log("Response:", res);
   if (res.ok) {
     return res.json();
   }
@@ -84,6 +83,14 @@ export const getCards = () => {
     headers: getHeaders(),
   })
     .then(handleResponse)
+    .then((cards) => {
+      // Ordena os cards por data de criação (mais novos primeiro)
+      return cards.sort((a, b) => {
+        const dateA = new Date(a.createdAt || a.createdat || Date.now());
+        const dateB = new Date(b.createdAt || b.createdat || Date.now());
+        return dateB - dateA; // Ordem decrescente
+      });
+    })
     .catch(handleError);
 };
 
@@ -116,7 +123,6 @@ export const addCard = ({ name, link }) => {
     method: "POST",
     headers: getHeaders(),
     body: JSON.stringify({ name, link }),
-    signal: AbortSignal.timeout(5000),
   })
     .then(handleResponse)
     .catch(handleError);
@@ -133,25 +139,18 @@ export const changeLikeCardStatus = (cardId, isLiked) => {
 };
 
 // FUNCTION - deletar card
-export const deleteCard = (cardId) => {
+export const deleteCard = (cardId, userId) => {
   return fetch(`${BASE_URL}/cards/${cardId}`, {
     method: "DELETE",
     headers: getHeaders(),
+    body: JSON.stringify({ userId }),
   })
     .then(async (res) => {
       const data = await res.json();
-      if (!res.ok) {
-        throw {
-          ...data,
-          status: res.status,
-        };
-      }
+      if (!res.ok) throw data;
       return data;
     })
-    .catch((error) => {
-      console.error("Erro na API:", error);
-      return Promise.reject(error);
-    });
+    .catch(handleError);
 };
 
 // FUNCTION - obter dados do usuario e cards

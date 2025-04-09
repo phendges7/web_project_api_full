@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import CurrentUserContext from "../../../../../contexts/CurrentUserContext.js";
 
 export default function EditProfile() {
@@ -7,12 +7,18 @@ export default function EditProfile() {
   const [description, setDescription] = useState(currentUser?.about || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Sincronizar os campos locais com o contexto
+  useEffect(() => {
+    setName(currentUser?.name || "");
+    setDescription(currentUser?.about || "");
+  }, [currentUser]);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsSubmitting(true);
+
     try {
       await handleUpdateUser({ name, about: description });
-      onClose(); // Fecha o popup após sucesso
     } catch (error) {
       console.error("Erro ao atualizar perfil:", error);
     } finally {

@@ -72,6 +72,7 @@
   height: 10%;
   width: 100%;
   font-family: "Inter";
+  padding-bottom: 5px;
 }
 
 .popup__input::placeholder {
