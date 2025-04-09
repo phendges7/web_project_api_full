@@ -5,11 +5,14 @@ import { handleError } from "./errorHandlers";
 export async function handleProfileFormSubmit({ name, about, setCurrentUser }) {
   try {
     const updatedUser = await api.updateUserInfo({ name, about });
+
+    // Atualiza o estado de forma segura
     setCurrentUser((prev) => ({
       ...prev,
       name: updatedUser.name,
       about: updatedUser.about,
     }));
+
     return updatedUser;
   } catch (error) {
     handleError(error);

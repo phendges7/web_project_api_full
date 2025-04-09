@@ -4,18 +4,19 @@ const { HttpStatus, HttpResponseMessage } = require("../enums/http.js");
 // controller para buscar todos os cards
 const getCards = async (req, res, next) => {
   try {
-    const cards = await Card.find({}).populate("owner");
-
-    if (!cards) {
-      return res.status(HttpStatus.NOT_FOUND).json({
-        message: "Nenhum card encontrado",
-      });
+    // Verifique se o modelo está acessível
+    if (!Card || !Card.find) {
+      throw new Error("Modelo Card não está disponível");
     }
+
+    const cards = await Card.find()
+      .populate("owner", "name about avatar")
+      .populate("likes", "name about avatar");
 
     res.status(HttpStatus.OK).json(cards);
   } catch (error) {
-    console.error("Erro ao buscar cards:", error);
-    next(error); // Passa para o middleware de erro
+    console.error("Erro detalhado:", error);
+    next(error);
   }
 };
 
@@ -23,72 +24,49 @@ const getCards = async (req, res, next) => {
 const createCard = async (req, res) => {
   try {
     const { name, link } = req.body;
-    const owner = req.user._id;
 
-    const newCard = await Card.create({ name, link, owner });
-
-    // Retorna o card criado
-    res.status(HttpStatus.CREATED).json({
-      message: HttpResponseMessage.CREATED,
-      data: newCard,
+    // O owner é automaticamente pego do token JWT
+    const card = await Card.create({
+      name,
+      link,
+      owner: req.user._id, // Usuário autenticado
     });
-    // Captura erros
+
+    res.status(201).json(card);
   } catch (error) {
-    console.error(`Erro ao criar cartão: ${error.message}`);
-
-    if (error.name === "ValidationError") {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        message: HttpResponseMessage.BAD_REQUEST,
-        details: error.message,
-      });
-    }
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      message: HttpResponseMessage.INTERNAL_SERVER_ERROR,
-    });
+    res.status(400).json({ message: error.message });
   }
 };
 
 // controller deletar card por id
-const deleteCard = async (req, res) => {
+const deleteCard = async (req, res, next) => {
+  debugger;
   try {
-    const { cardId } = req.params;
+    const card = await Card.findById(req.params.cardId);
 
-    // Busca o card pelo ID
-    const card = await card.findById(cardId);
     if (!card) {
       return res.status(HttpStatus.NOT_FOUND).json({
-        message: HttpResponseMessage.NOT_FOUND,
+        success: false,
+        message: "Card não encontrado",
       });
     }
 
-    // Verifica se o usuário é o dono do card
-    if (card.owner.toString() !== req.user._id.toString()) {
+    if (card.owner.toString() !== req.user._id) {
       return res.status(HttpStatus.FORBIDDEN).json({
-        message: HttpResponseMessage.FORBIDDEN,
+        success: false,
+        message: "Você não tem permissão para excluir este card",
       });
     }
 
-    // Deleta o card
-    await Card.findByIdAndDelete(cardId);
-    res.json({
-      message: HttpResponseMessage.SUCCESS,
+    await Card.findByIdAndDelete(req.params.cardId);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Card excluído com sucesso",
+      shouldRemove: true,
     });
-    // Captura erros
   } catch (error) {
-    console.error(`Erro ao deletar cartão: ${error.message}`);
-
-    // Verifica se o ID é inválido
-    if (error.name === "CastError") {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        message: HttpResponseMessage.BAD_REQUEST,
-        details: "ID inválido",
-      });
-    }
-
-    // Retorna erro interno do servidor
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      message: HttpResponseMessage.SERVER_ERROR,
-    });
+    next(error);
   }
 };
 

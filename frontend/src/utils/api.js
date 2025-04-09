@@ -56,7 +56,8 @@ export const loginUser = ({ email, password }) => {
 
 // FUNCTION - registrar usuario
 export const registerUser = ({ email, password }) => {
-  return fetch("/api/signup", {
+  console.log("Dados do registro:", { email, password });
+  return fetch(`${BASE_URL}/signup`, {
     method: "POST",
     headers: getHeaders(),
     body: JSON.stringify({ email, password }),
@@ -82,6 +83,14 @@ export const getCards = () => {
     headers: getHeaders(),
   })
     .then(handleResponse)
+    .then((cards) => {
+      // Ordena os cards por data de criação (mais novos primeiro)
+      return cards.sort((a, b) => {
+        const dateA = new Date(a.createdAt || a.createdat || Date.now());
+        const dateB = new Date(b.createdAt || b.createdat || Date.now());
+        return dateB - dateA; // Ordem decrescente
+      });
+    })
     .catch(handleError);
 };
 
@@ -109,6 +118,7 @@ export const updateAvatar = (avatar) => {
 
 // FUNCTION - adicionar novo card
 export const addCard = ({ name, link }) => {
+  console.log("Dados do novo card:", { name, link });
   return fetch(`${BASE_URL}/cards`, {
     method: "POST",
     headers: getHeaders(),
@@ -129,12 +139,17 @@ export const changeLikeCardStatus = (cardId, isLiked) => {
 };
 
 // FUNCTION - deletar card
-export const deleteCard = (cardId) => {
+export const deleteCard = (cardId, userId) => {
   return fetch(`${BASE_URL}/cards/${cardId}`, {
     method: "DELETE",
     headers: getHeaders(),
+    body: JSON.stringify({ userId }),
   })
-    .then(handleResponse)
+    .then(async (res) => {
+      const data = await res.json();
+      if (!res.ok) throw data;
+      return data;
+    })
     .catch(handleError);
 };
 

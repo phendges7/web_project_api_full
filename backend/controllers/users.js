@@ -18,17 +18,12 @@ const throwError = (message, status, type) => {
 // controller para buscar usuario atuals
 const getCurrentUser = async (req, res, next) => {
   try {
-    console.log("Headers recebidos:", req.headers);
-    console.log("Token decodificado:", req.user);
-
     const user = await User.findById(req.user._id);
 
     if (!user) {
       throwError("Usuário não encontrado", 404, "NOT_FOUND");
     }
-
-    console.log("Usuário encontrado:", user);
-    res.status(200).json(user.toObject());
+    res.status(200).send(user);
   } catch (error) {
     next(error);
   }
@@ -37,7 +32,8 @@ const getCurrentUser = async (req, res, next) => {
 // controller para criar um usuario
 const createUser = async (req, res, next) => {
   try {
-    const { name, about, avatar, email, password } = req.body;
+    debugger;
+    const { email, password } = req.body;
 
     if (!email || !password) {
       throwError(
@@ -49,9 +45,6 @@ const createUser = async (req, res, next) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({
-      name,
-      about,
-      avatar,
       email,
       password: hashedPassword,
     });
@@ -59,15 +52,10 @@ const createUser = async (req, res, next) => {
     const userWithoutPassword = newUser.toObject();
     delete userWithoutPassword.password;
 
-    res.status(HttpStatus.CREATED).json({
-      success: true,
-      message: HttpResponseMessage.CREATED,
-      data: userWithoutPassword,
-    });
+    res.status(HttpStatus.CREATED).json(userWithoutPassword);
   } catch (error) {
-    if (error.name === "MongoError" && error.code === 11000) {
+    if (error.code === 11000) {
       error.message = "Email já cadastrado";
-      error.details = "O email informado já está em uso";
       error.status = HttpStatus.BAD_REQUEST;
     }
     next(error);
@@ -172,7 +160,6 @@ const login = async (req, res, next) => {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: HttpResponseMessage.SUCCESS,
       data: {
         token,
         user: userWithoutPassword,

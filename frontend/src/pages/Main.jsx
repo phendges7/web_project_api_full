@@ -1,13 +1,12 @@
 import { useContext, useEffect, useState } from "react";
-
 import { fetchUserAndCards } from "../utils/api.js";
-
 import Popup from "../components/Main/components/Popup/Popup.jsx";
 import editProfileButton from "../images/editButton.svg";
 import avatar from "../images/avatarDefault.jpg";
 import Card from "../components/Main/components/Card/Card.jsx";
 import CurrentUserContext from "../contexts/CurrentUserContext.js";
 import CardContext from "../contexts/CardContext.js";
+import { Popups } from "../components/Main/components/constants.jsx";
 
 export default function Main({
   onOpenPopup,
@@ -16,79 +15,53 @@ export default function Main({
   cards,
   setCards,
 }) {
-  // Contextos atuais
   const { currentUser, setCurrentUser } = useContext(CurrentUserContext);
   const { handleCardLike, handleCardDelete } = useContext(CardContext);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Carregar dados do usuário
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
         const [userData, cardsData] = await fetchUserAndCards();
-        console.log("Dados recebidos:", {
-          currentUserId: currentUser._id,
-          userData,
-          cardsData,
+
+        setCurrentUser({
+          email: userData?.email,
+          _id: userData?._id,
+          name: userData?.name || "USUARIO PADRAO",
+          about: userData?.about || "DESCRICAO PADRAO",
+          avatar: userData?.avatar || avatar,
         });
 
-        setCurrentUser((prev) => ({
-          ...prev,
-          name: userData.name || "USUARIO PADRAO",
-          about: userData.about || "DESCRICAO PADRAO",
-          avatar: userData.avatar || avatar,
-          _id: userData._id || "",
-        }));
-        // Verifica se cardsData existe e é um array antes de mapear
-        const processedCards = Array.isArray(cardsData)
-          ? cardsData.map((card) => ({
-              ...card,
-              isLiked: card.isLiked, // Usa diretamente o valor da API
-            }))
-          : [];
-
-        setCards(processedCards);
-        console.log(
-          "Cards processados:",
-          processedCards.map((c) => ({
-            id: c._id,
-            isLiked: c.isLiked,
-          }))
-        );
-      } catch {
-        console.error("Erro ao carregar dados iniciais:", Error);
+        setCards(Array.isArray(cardsData) ? cardsData : []);
+      } catch (error) {
+        console.error("Erro ao carregar dados iniciais:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchInitialData();
-  }, [setCurrentUser, setCards, currentUser._id]);
+  }, [setCurrentUser, setCards]);
 
-  if (isLoading) {
-    return <div className="loading">Carregando...</div>;
-  }
-
-  // FUNCTION - LIKE CARD
   const handleLike = async (card) => {
     try {
-      // Atualiza o estado local imediatamente
       setCards((prevCards) =>
         prevCards.map((c) =>
           c._id === card._id ? { ...c, isLiked: !c.isLiked } : c
         )
       );
-
-      // Envia a requisição para a API em segundo plano
-      handleCardLike(card).catch((error) => {
-        console.error("Falha na API (silenciosa):", error);
-      });
+      await handleCardLike(card);
     } catch (error) {
-      console.error("Erro inesperado:", error);
+      console.error("Erro ao curtir card:", error);
+      // Reverte a mudança em caso de erro
+      setCards((prevCards) =>
+        prevCards.map((c) =>
+          c._id === card._id ? { ...c, isLiked: !c.isLiked } : c
+        )
+      );
     }
   };
 
-  // FUNCTION - DELETAR CARD
   const handleDelete = async (card) => {
     try {
       await handleCardDelete(card);
@@ -98,9 +71,42 @@ export default function Main({
     }
   };
 
+  if (isLoading) {
+    return <div className="loading">Carregando...</div>;
+  }
+
+  const handleOpenPopup = (popupType) => {
+    switch (popupType) {
+      case "editProfilePopup":
+        onOpenPopup({
+          ...Popups.editProfilePopup,
+          children: <Popups.editProfilePopup.children.type />,
+        });
+        break;
+
+      case "editAvatarPopup":
+        onOpenPopup({
+          ...Popups.editAvatarPopup,
+          children: <Popups.editAvatarPopup.children.type />,
+        });
+        break;
+
+      case "addPlacePopup":
+        onOpenPopup({
+          ...Popups.addPlacePopup,
+          children: (
+            <Popups.addPlacePopup.children.type onClose={onClosePopup} />
+          ),
+        });
+        break;
+
+      default:
+        onOpenPopup(Popups[popupType]);
+    }
+  };
+
   return (
     <>
-      {/*------------- PROFILE -------------*/}
       <div className="profile">
         <div className="profile__picture-container">
           <img
@@ -133,18 +139,17 @@ export default function Main({
         ></button>
       </div>
 
-      {/*------------- POPUP -------------*/}
       {popup && (
         <Popup
+          isOpen={!!popup}
           onClose={onClosePopup}
           title={popup.title}
-          className="popup__opened"
+          contentClassName={popup.contentClassName}
         >
           {popup.children}
         </Popup>
       )}
 
-      {/*------------- CARDS -------------*/}
       <div className="card-grid">
         {cards.map((card) => (
           <Card

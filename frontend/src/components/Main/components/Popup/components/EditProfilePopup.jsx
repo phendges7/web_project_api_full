@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import CurrentUserContext from "../../../../../contexts/CurrentUserContext.js";
 
 export default function EditProfile() {
@@ -6,6 +6,12 @@ export default function EditProfile() {
   const [name, setName] = useState(currentUser?.name || "");
   const [description, setDescription] = useState(currentUser?.about || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Sincronizar os campos locais com o contexto
+  useEffect(() => {
+    setName(currentUser?.name || "");
+    setDescription(currentUser?.about || "");
+  }, [currentUser]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();

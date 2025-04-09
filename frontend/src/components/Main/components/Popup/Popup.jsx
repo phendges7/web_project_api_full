@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 export default function Popup({
   isOpen,
   onClose,
@@ -5,6 +7,24 @@ export default function Popup({
   children,
   contentClassName,
 }) {
+  // Adiciona o evento para fechar o popup com a tecla ESC
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscClose = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscClose);
+
+    // Remove o evento quando o componente é desmontado ou o popup é fechado
+    return () => {
+      document.removeEventListener("keydown", handleEscClose);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (

@@ -12,6 +12,7 @@ export default function EditAvatar() {
     setIsLoading(true);
     try {
       await handleUpdateAvatar(avatarUrl);
+      onClose(); // Fecha o popup após sucesso
     } catch (error) {
       console.error("Error updating avatar:", error);
     } finally {
