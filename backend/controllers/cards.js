@@ -40,25 +40,10 @@ const createCard = async (req, res) => {
 
 // controller deletar card por id
 const deleteCard = async (req, res, next) => {
-  debugger;
   try {
-    const card = await Card.findById(req.params.cardId);
+    const { cardId } = req.params;
 
-    if (!card) {
-      return res.status(HttpStatus.NOT_FOUND).json({
-        success: false,
-        message: "Card não encontrado",
-      });
-    }
-
-    if (card.owner.toString() !== req.user._id) {
-      return res.status(HttpStatus.FORBIDDEN).json({
-        success: false,
-        message: "Você não tem permissão para excluir este card",
-      });
-    }
-
-    await Card.findByIdAndDelete(req.params.cardId);
+    await Card.findByIdAndDelete(cardId);
 
     res.status(HttpStatus.OK).json({
       success: true,

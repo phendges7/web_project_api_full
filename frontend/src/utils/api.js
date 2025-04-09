@@ -140,10 +140,11 @@ export const changeLikeCardStatus = (cardId, isLiked) => {
 
 // FUNCTION - deletar card
 export const deleteCard = (cardId, userId) => {
+  console.log("Deletando card com ID:", cardId);
+  console.log("ID do usuário:", userId);
   return fetch(`${BASE_URL}/cards/${cardId}`, {
     method: "DELETE",
     headers: getHeaders(),
-    body: JSON.stringify({ userId }),
   })
     .then(async (res) => {
       const data = await res.json();

@@ -3,9 +3,8 @@ const { HttpStatus, HttpResponseMessage } = require("../enums/http");
 
 const checkCardOwnership = async (req, res, next) => {
   try {
-    debugger;
     const { cardId } = req.params;
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     // Busca o card pelo ID
     const card = await Card.findById(cardId);
