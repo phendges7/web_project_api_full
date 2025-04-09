@@ -1,5 +1,4 @@
-import React from "react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Routes,
   Route,
@@ -7,7 +6,18 @@ import {
   useNavigate,
   useLocation,
 } from "react-router-dom";
-import ProtectedRoute from "./ProtectedRoute";
+
+// Utils
+import * as api from "../utils/api";
+
+import { setToken, getToken, removeToken } from "../utils/token";
+
+import { Popups } from "./Main/components/constants";
+
+// Contexts
+import AppContext from "../contexts/AppContext";
+import CurrentUserContext from "../contexts/CurrentUserContext";
+import CardContext from "../contexts/CardContext";
 
 // Handlers
 import {
@@ -23,26 +33,16 @@ import {
   handleOpenPopup,
   handleClosePopup,
 } from "../utils/handlers/popupHandlers";
-import { handleError } from "../utils/handlers/errorHandlers";
 
 // Components
+import ProtectedRoute from "./ProtectedRoute";
 import Register from "./Register";
 import Login from "../components/Login";
 import Header from "./Header";
 import Main from "../pages/Main";
 import Footer from "./Footer";
-import InfoTooltip from "./Main/components/Popup/components/InfoTooltip";
 import Popup from "./Main/components/Popup/Popup";
-
-// Contexts
-import CurrentUserContext from "../contexts/CurrentUserContext";
-import CardContext from "../contexts/CardContext";
-import AppContext from "../contexts/AppContext";
-
-// Utils
-import * as api from "../utils/api";
-import { setToken, getToken, removeToken } from "../utils/token";
-import { Popups } from "./Main/components/constants";
+import InfoTooltip from "./Main/components/Popup/components/InfoTooltip";
 
 function App() {
   const [currentUser, setCurrentUser] = useState({
@@ -158,13 +158,6 @@ function App() {
   // FUNCTION - ATUALIZAR DADOS DO USUARIO
   const onUpdateProfile = async ({ name, about }) => {
     try {
-      // Atualização otimista imediata
-      setCurrentUser((prev) => ({
-        ...prev,
-        name,
-        about,
-      }));
-
       // Chamada ao handler existente
       const updatedUser = await handleProfileFormSubmit({
         name,
@@ -201,12 +194,6 @@ function App() {
   // FUNCTION - ATUALIZAR AVATAR
   const onUpdateAvatar = async (avatarUrl) => {
     try {
-      // Atualização otimista
-      setCurrentUser((prev) => ({
-        ...prev,
-        avatar: avatarUrl,
-      }));
-
       const updatedUser = await handleAvatarFormSubmit({
         avatarUrl,
         setCurrentUser: (updateFn) => {

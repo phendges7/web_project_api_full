@@ -5,15 +5,7 @@ export default function Card({
   onCardLike,
   onCardDelete,
 }) {
-  const { name, link, likes = [] } = card;
-
-  // Debug visual
-  console.log(
-    `Card ${card._id} - isLiked:`,
-    isLiked,
-    "Likes count:",
-    likes.length
-  );
+  const { name, link } = card;
 
   const cardLikeButtonClassName = `card__like-button ${
     isLiked ? "active" : ""

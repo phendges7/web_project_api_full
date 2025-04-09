@@ -138,7 +138,6 @@ export default function Main({
 
       <div className="card-grid">
         {cards.map((card) => {
-          console.log("Card Key:", card._id);
           return (
             <Card
               key={card._id}
