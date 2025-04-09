@@ -118,16 +118,27 @@ export const updateAvatar = (avatar) => {
 
 // FUNCTION - adicionar novo card
 export const addCard = ({ name, link }) => {
-  console.log("Dados do novo card:", { name, link });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
   return fetch(`${BASE_URL}/cards`, {
     method: "POST",
     headers: getHeaders(),
     body: JSON.stringify({ name, link }),
+    signal: controller.signal,
   })
-    .then(handleResponse)
-    .catch(handleError);
+    .then((response) => {
+      clearTimeout(timeout);
+      return handleResponse(response);
+    })
+    .catch((error) => {
+      clearTimeout(timeout);
+      if (error.name === "AbortError") {
+        throw new Error("Request took too long (timeout after 5 seconds)");
+      }
+      throw error;
+    });
 };
-
 // FUNCTION - mudar status de like do card
 export const changeLikeCardStatus = (cardId, isLiked) => {
   console.log("Mudando status de like do card com ID:", cardId);

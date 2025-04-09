@@ -144,6 +144,7 @@ function App() {
         // Caso a resposta não venha no formato esperado
         setIsLoginSuccess(false);
         setIsInfoTooltipOpen(true);
+        setErrorType("login");
       }
     } catch (error) {
       console.error("Erro ao fazer login: ", error);

@@ -2,8 +2,6 @@ const jwt = require("jsonwebtoken");
 const { HttpStatus, HttpResponseMessage } = require("../enums/http");
 
 const auth = (req, res, next) => {
-  console.log("Rota atual:", req.path);
-
   // Verifica se o token JWT está presente no cabeçalho Authorization
   // Se não houver token, retorna um erro de não autorizado
   const { authorization } = req.headers;
