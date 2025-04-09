@@ -10,22 +10,37 @@ export const handleCardFormSubmit = async ({ name, link }) => {
 };
 
 export async function handleCardLike(card) {
-  await api.changeLikeCardStatus(card._id, !card.isLiked);
+  try {
+    const updatedCard = await api.changeLikeCardStatus(card._id, !card.isLiked);
+
+    // Retorna os likes como array de strings (IDs)
+    const likes = updatedCard.likes.map((like) => like._id.toString());
+
+    return {
+      success: true,
+      card: updatedCard,
+      likes, // Array de IDs dos usuários que curtiram
+      isLiked: likes.includes(card.owner._id.toString()), // Calcula o novo estado
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error,
+      originalCard: card,
+    };
+  }
 }
 
 export const handleCardDelete = async (card, userId) => {
   try {
     const response = await api.deleteCard(card._id, userId);
 
-    // Se a API retornar um erro de permissão
-    if (response && !response.success) {
-      return {
-        success: false,
-        message: response.message,
-        shouldRemove: false,
-      };
+    // Se a resposta já tem o formato que precisamos, apenas retorne
+    if (response && typeof response.success !== "undefined") {
+      return response;
     }
 
+    // Para manter compatibilidade com outras respostas
     return {
       success: true,
       shouldRemove: true,

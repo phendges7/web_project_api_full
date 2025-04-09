@@ -5,14 +5,22 @@ export default function Card({
   onCardLike,
   onCardDelete,
 }) {
-  const { name, link } = card;
+  const { name, link, likes = [] } = card;
+
+  // Debug visual
+  console.log(
+    `Card ${card._id} - isLiked:`,
+    isLiked,
+    "Likes count:",
+    likes.length
+  );
 
   const cardLikeButtonClassName = `card__like-button ${
     isLiked ? "active" : ""
   }`;
 
-  // Manipulador do clique no botão de curtir
   function handleLikeClick() {
+    console.log("Like clicked - current state:", isLiked);
     onCardLike(card);
   }
 
@@ -44,8 +52,9 @@ export default function Card({
       <button
         aria-label="LIKE"
         className={cardLikeButtonClassName}
+        type="button"
         onClick={handleLikeClick}
-      ></button>
+      />
     </div>
   );
 }

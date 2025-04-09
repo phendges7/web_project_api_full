@@ -6,7 +6,6 @@ import avatar from "../images/avatarDefault.jpg";
 import Card from "../components/Main/components/Card/Card.jsx";
 import CurrentUserContext from "../contexts/CurrentUserContext.js";
 import CardContext from "../contexts/CardContext.js";
-import { Popups } from "../components/Main/components/constants.jsx";
 
 export default function Main({
   onOpenPopup,
@@ -32,7 +31,17 @@ export default function Main({
           avatar: userData?.avatar || avatar,
         });
 
-        setCards(Array.isArray(cardsData) ? cardsData : []);
+        const updatedCards = Array.isArray(cardsData)
+          ? cardsData.map((card) => {
+              // Verifica se o array de likes contém o ID do usuário atual
+              const isLiked = card.likes.some(
+                (like) => like._id.toString() === userData?._id.toString()
+              );
+              return { ...card, isLiked, likes: card.likes || [] };
+            })
+          : [];
+
+        setCards(updatedCards);
       } catch (error) {
         console.error("Erro ao carregar dados iniciais:", error);
       } finally {
@@ -43,6 +52,7 @@ export default function Main({
     fetchInitialData();
   }, [setCurrentUser, setCards]);
 
+  // Função para lidar com o like do card
   const handleLike = async (card) => {
     try {
       setCards((prevCards) =>
@@ -62,48 +72,24 @@ export default function Main({
     }
   };
 
+  // Função para lidar com a exclusão do card
   const handleDelete = async (card) => {
     try {
-      await handleCardDelete(card);
-      setCards((prevCards) => prevCards.filter((c) => c._id !== card._id));
+      const result = await handleCardDelete(card);
+
+      // Só remova o card da UI se for realmente deletado com sucesso
+      if (result.success && result.shouldRemove) {
+        setCards((prevCards) => prevCards.filter((c) => c._id !== card._id));
+      }
+      // Se não, não faça nada - o card deve permanecer na tela
     } catch (error) {
       console.error("Erro ao deletar card:", error);
+      // Não altere o estado em caso de erro
     }
   };
-
   if (isLoading) {
     return <div className="loading">Carregando...</div>;
   }
-
-  const handleOpenPopup = (popupType) => {
-    switch (popupType) {
-      case "editProfilePopup":
-        onOpenPopup({
-          ...Popups.editProfilePopup,
-          children: <Popups.editProfilePopup.children.type />,
-        });
-        break;
-
-      case "editAvatarPopup":
-        onOpenPopup({
-          ...Popups.editAvatarPopup,
-          children: <Popups.editAvatarPopup.children.type />,
-        });
-        break;
-
-      case "addPlacePopup":
-        onOpenPopup({
-          ...Popups.addPlacePopup,
-          children: (
-            <Popups.addPlacePopup.children.type onClose={onClosePopup} />
-          ),
-        });
-        break;
-
-      default:
-        onOpenPopup(Popups[popupType]);
-    }
-  };
 
   return (
     <>
@@ -151,16 +137,19 @@ export default function Main({
       )}
 
       <div className="card-grid">
-        {cards.map((card) => (
-          <Card
-            key={card._id}
-            card={card}
-            isLiked={card.isLiked}
-            onCardLike={handleLike}
-            onCardDelete={handleDelete}
-            onImageClick={() => onOpenPopup("imagePopup", card)}
-          />
-        ))}
+        {cards.map((card) => {
+          console.log("Card Key:", card._id);
+          return (
+            <Card
+              key={card._id}
+              card={card}
+              isLiked={card.isLiked}
+              onCardLike={handleLike}
+              onCardDelete={handleDelete}
+              onImageClick={() => onOpenPopup("imagePopup", card)}
+            />
+          );
+        })}
       </div>
     </>
   );

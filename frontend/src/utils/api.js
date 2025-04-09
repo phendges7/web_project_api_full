@@ -130,6 +130,8 @@ export const addCard = ({ name, link }) => {
 
 // FUNCTION - mudar status de like do card
 export const changeLikeCardStatus = (cardId, isLiked) => {
+  console.log("Mudando status de like do card com ID:", cardId);
+  console.log("Status de like:", isLiked);
   return fetch(`${BASE_URL}/cards/${cardId}/likes`, {
     method: isLiked ? "PUT" : "DELETE",
     headers: getHeaders(),
@@ -148,7 +150,17 @@ export const deleteCard = (cardId, userId) => {
   })
     .then(async (res) => {
       const data = await res.json();
-      if (!res.ok) throw data;
+      // Aqui é onde precisamos modificar a verificação
+      if (!res.ok) {
+        // Retornar um objeto estruturado que indica que houve um erro
+        // e que não deve remover o card da UI
+        return {
+          success: false,
+          message: data.message || "Erro ao deletar o card",
+          shouldRemove: false,
+          status: res.status,
+        };
+      }
       return data;
     })
     .catch(handleError);
