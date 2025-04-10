@@ -1,4 +1,4 @@
-const HttpStatus = Object.freeze({
+export const HttpStatus = Object.freeze({
   OK: 200,
   CREATED: 201,
   BAD_REQUEST: 400,
@@ -8,7 +8,7 @@ const HttpStatus = Object.freeze({
   INTERNAL_SERVER_ERROR: 500,
 });
 
-const HttpResponseMessage = Object.freeze({
+export const HttpResponseMessage = Object.freeze({
   SUCCESS: "Success",
   CREATED: "Resource created successfully",
   BAD_REQUEST: "Bad request",
@@ -18,11 +18,9 @@ const HttpResponseMessage = Object.freeze({
   SERVER_ERROR: "Internal server error",
 });
 
-const ErrorTypes = Object.freeze({
+export const ErrorTypes = Object.freeze({
   VALIDATION: "ValidationError",
   AUTH: "AuthError",
   NOT_FOUND: "NotFoundError",
   DATABASE: "DatabaseError",
 });
-
-module.exports = { HttpStatus, HttpResponseMessage, ErrorTypes };

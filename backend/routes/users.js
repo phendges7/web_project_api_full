@@ -1,28 +1,32 @@
-const router = require("express").Router();
-const auth = require("../middlewares/auth");
+import { Router } from 'express';
+import auth from '../middlewares/auth.js';
 
 // Importa os middlewares de validação
-const {
+import {
   validateCreateUser,
   validateLogin,
   validateUpdateUser,
   validateUpdateAvatar,
-} = require("../validators/usersValidator");
+} from '../validators/usersValidator.js';
 
 // Importa os controladores
-const {
+import {
   getCurrentUser,
   createUser,
   updateUserInfo,
   updateAvatar,
   login,
-} = require("../controllers/users");
+} from '../controllers/users.js';
+
+// Cria o router
+const router = Router();
 
 // Define as rotas
-router.post("/signup", validateCreateUser, createUser);
-router.post("/signin", validateLogin, login);
-router.get("/me", auth, getCurrentUser);
-router.patch("/me", validateUpdateUser, updateUserInfo);
-router.patch("/me/avatar", validateUpdateAvatar, updateAvatar);
+router.post('/signup', validateCreateUser, createUser);
+router.post('/signin', validateLogin, login);
+router.get('/me', auth, getCurrentUser);
+router.patch('/me', validateUpdateUser, updateUserInfo);
+router.patch('/me/avatar', validateUpdateAvatar, updateAvatar);
 
-module.exports = router;
+// Exporta o router
+export default router;

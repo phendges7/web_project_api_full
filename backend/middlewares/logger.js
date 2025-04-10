@@ -1,5 +1,5 @@
-const winston = require("winston");
-const expressWinston = require("express-winston");
+import winston from "winston";
+import expressWinston from "express-winston";
 
 const requestLogger = expressWinston.logger({
   transports: [
@@ -21,7 +21,4 @@ const errorLogger = expressWinston.errorLogger({
   format: winston.format.json(),
 });
 
-module.exports = {
-  requestLogger,
-  errorLogger,
-};
+export { requestLogger, errorLogger };

@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "celebrate": "^15.0.3",
@@ -17,12 +18,16 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
+    "eslint-plugin-node": "^11.1.0",
     "lint": "^1.1.2",
     "nodemon": "^3.1.9"
   },
   "scripts": {
-    "dev": "nodemon app.js",
-    "start": "node app.js",
+    "dev": "nodemon --experimental-specifier-resolution=node app.js",
+    "start": "node --experimental-specifier-resolution=node app.js",
     "lint": "eslint ."
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }

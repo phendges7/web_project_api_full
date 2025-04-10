@@ -5,6 +5,7 @@ import reactRefresh from "eslint-plugin-react-refresh";
 
 export default [
   { ignores: ["dist"] },
+  // Configuração para arquivos do frontend (React)
   {
     files: ["**/*.{js,jsx}"],
     languageOptions: {
@@ -30,6 +31,30 @@ export default [
       "react-refresh/only-export-components": [
         "warn",
         { allowConstantExport: true },
+      ],
+    },
+  },
+  // Configuração adicional para arquivos do backend (Node.js)
+  {
+    files: ["**/*.js"],
+    ignores: ["**/*.jsx"], // Exclui arquivos JSX desta configuração
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        process: "readonly", // Adiciona process como global
+      },
+      parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "module",
+      },
+    },
+    rules: {
+      "no-unused-vars": [
+        "error",
+        {
+          varsIgnorePattern: "^_",
+          argsIgnorePattern: "next",
+        },
       ],
     },
   },

@@ -1,14 +1,10 @@
-import User from ("../models/user");
-import {
-  HttpStatus,
-  HttpResponseMessage,
-  ErrorTypes,
-} from ("../enums/http");
-import bcrypt from ("bcryptjs");
-import jwt from ("jsonwebtoken");
+import User from "../models/user.js";
+import { HttpStatus, HttpResponseMessage, ErrorTypes } from "../enums/http.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 // Helper para formatar erros
-const throwError = (message, status, type) => {
+export const throwError = (message, status, type) => {
   const error = new Error(message);
   error.status = status;
   error.type = type;
@@ -16,7 +12,7 @@ const throwError = (message, status, type) => {
 };
 
 // controller para buscar usuario atuals
-const getCurrentUser = async (req, res, next) => {
+export const getCurrentUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
 
@@ -30,7 +26,7 @@ const getCurrentUser = async (req, res, next) => {
 };
 
 // controller para criar um usuario
-const createUser = async (req, res, next) => {
+export const createUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -62,7 +58,7 @@ const createUser = async (req, res, next) => {
 };
 
 // controller para atualizar informações do usuario
-const updateUserInfo = async (req, res, next) => {
+export const updateUserInfo = async (req, res, next) => {
   try {
     const { name, about } = req.body;
     const updatedUser = await User.findByIdAndUpdate(
@@ -90,7 +86,7 @@ const updateUserInfo = async (req, res, next) => {
 };
 
 // controller para atualizar o avatar do usuario
-const updateAvatar = async (req, res, next) => {
+export const updateAvatar = async (req, res, next) => {
   try {
     const { avatar } = req.body;
     const updatedUser = await User.findByIdAndUpdate(
@@ -118,7 +114,7 @@ const updateAvatar = async (req, res, next) => {
 };
 
 // controller para manipular login
-const login = async (req, res, next) => {
+export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -167,12 +163,4 @@ const login = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
-
-module.exports = {
-  getCurrentUser,
-  createUser,
-  updateUserInfo,
-  updateAvatar,
-  login,
 };

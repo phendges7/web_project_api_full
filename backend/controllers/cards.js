@@ -1,5 +1,5 @@
-import Card from ("../models/card");
-import { HttpStatus } from ("../enums/http.js");
+import Card from "../models/card.js";
+import { HttpStatus } from "../enums/http.js";
 
 // controller para buscar todos os cards
 const getCards = async (req, res, next) => {
@@ -112,10 +112,5 @@ const dislikeCard = async (req, res) => {
   }
 };
 
-module.exports = {
-  getCards,
-  createCard,
-  deleteCard,
-  likeCard,
-  dislikeCard,
-};
+// Exporta as funções
+export { getCards, createCard, deleteCard, likeCard, dislikeCard };
