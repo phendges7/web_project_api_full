@@ -118,18 +118,31 @@ export const updateAvatar = (avatar) => {
 
 // FUNCTION - adicionar novo card
 export const addCard = ({ name, link }) => {
-  console.log("Dados do novo card:", { name, link });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
   return fetch(`${BASE_URL}/cards`, {
     method: "POST",
     headers: getHeaders(),
     body: JSON.stringify({ name, link }),
+    signal: controller.signal,
   })
-    .then(handleResponse)
-    .catch(handleError);
+    .then((response) => {
+      clearTimeout(timeout);
+      return handleResponse(response);
+    })
+    .catch((error) => {
+      clearTimeout(timeout);
+      if (error.name === "AbortError") {
+        throw new Error("Request took too long (timeout after 5 seconds)");
+      }
+      throw error;
+    });
 };
-
 // FUNCTION - mudar status de like do card
 export const changeLikeCardStatus = (cardId, isLiked) => {
+  console.log("Mudando status de like do card com ID:", cardId);
+  console.log("Status de like:", isLiked);
   return fetch(`${BASE_URL}/cards/${cardId}/likes`, {
     method: isLiked ? "PUT" : "DELETE",
     headers: getHeaders(),
@@ -148,7 +161,17 @@ export const deleteCard = (cardId, userId) => {
   })
     .then(async (res) => {
       const data = await res.json();
-      if (!res.ok) throw data;
+      // Aqui é onde precisamos modificar a verificação
+      if (!res.ok) {
+        // Retornar um objeto estruturado que indica que houve um erro
+        // e que não deve remover o card da UI
+        return {
+          success: false,
+          message: data.message || "Erro ao deletar o card",
+          shouldRemove: false,
+          status: res.status,
+        };
+      }
       return data;
     })
     .catch(handleError);

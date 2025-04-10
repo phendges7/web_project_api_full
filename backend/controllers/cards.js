@@ -4,18 +4,21 @@ const { HttpStatus, HttpResponseMessage } = require("../enums/http.js");
 // controller para buscar todos os cards
 const getCards = async (req, res, next) => {
   try {
-    // Verifique se o modelo está acessível
-    if (!Card || !Card.find) {
-      throw new Error("Modelo Card não está disponível");
-    }
-
     const cards = await Card.find()
       .populate("owner", "name about avatar")
-      .populate("likes", "name about avatar");
+      .populate("likes", "_id name"); // Popula apenas o necessário
 
-    res.status(HttpStatus.OK).json(cards);
+    // Garante que todos os cards tenham o campo likes como array
+    const normalizedCards = cards.map((card) => ({
+      ...card._doc,
+      likes: card.likes || [],
+      isLiked: card.likes.some(
+        (like) => like._id.toString() === req.user._id.toString()
+      ),
+    }));
+
+    res.status(200).json(normalizedCards);
   } catch (error) {
-    console.error("Erro detalhado:", error);
     next(error);
   }
 };
@@ -55,45 +58,31 @@ const deleteCard = async (req, res, next) => {
   }
 };
 
+// Modifique o likeCard e dislikeCard para retornar os likes populados
 const likeCard = async (req, res) => {
   try {
     const { cardId } = req.params;
     const userId = req.user._id;
 
-    // Busca o card pelo ID
     const updatedCard = await Card.findByIdAndUpdate(
       cardId,
       { $addToSet: { likes: userId } },
       { new: true }
-    );
+    ).populate("likes", "_id"); // Popula apenas os IDs dos usuários que deram like
 
-    // Verifica se o card foi encontrado
     if (!updatedCard) {
-      return res.status(HttpStatus.NOT_FOUND).json({
-        message: HttpResponseMessage.NOT_FOUND,
-      });
+      return res.status(404).json({ message: "Card não encontrado" });
     }
 
-    // Retorna o card atualizado
-    res.status(HttpStatus.OK).json({
-      message: HttpResponseMessage.SUCCESS,
-      data: updatedCard,
+    res.json({
+      success: true,
+      card: updatedCard,
+      // Retorna os IDs dos likes para facilitar a verificação no front
+      likes: updatedCard.likes.map((like) => like._id.toString()),
     });
   } catch (error) {
-    // Captura erros
-    console.error(`Erro ao curtir card: ${error.message}`);
-
-    // Verifica se o ID é inválido
-    if (error.name === "CastError") {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        message: HttpResponseMessage.BAD_REQUEST,
-        details: "ID inválido",
-      });
-    }
-
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      message: HttpResponseMessage.SERVER_ERROR,
-    });
+    console.error(error);
+    res.status(500).json({ message: "Erro ao curtir card" });
   }
 };
 
@@ -102,37 +91,24 @@ const dislikeCard = async (req, res) => {
     const { cardId } = req.params;
     const userId = req.user._id;
 
-    // Busca o card pelo ID
     const updatedCard = await Card.findByIdAndUpdate(
       cardId,
       { $pull: { likes: userId } },
       { new: true }
-    );
+    ).populate("likes", "_id");
+
     if (!updatedCard) {
-      return res.status(HttpStatus.NOT_FOUND).json({
-        message: HttpResponseMessage.NOT_FOUND,
-      });
+      return res.status(404).json({ message: "Card não encontrado" });
     }
-    res.status(HttpStatus.OK).json({
-      message: HttpResponseMessage.SUCCESS,
-      data: updatedCard,
+
+    res.json({
+      success: true,
+      card: updatedCard,
+      likes: updatedCard.likes.map((like) => like._id.toString()),
     });
   } catch (error) {
-    // Captura erros
-    console.error(`Erro ao descurtir card: ${error.message}`);
-
-    // Verifica se o ID é inválido
-    if (error.name === "CastError") {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        message: HttpResponseMessage.BAD_REQUEST,
-        details: "ID inválido",
-      });
-    }
-
-    // Retorna erro interno do servidor
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      message: HttpResponseMessage.SERVER_ERROR,
-    });
+    console.error(error);
+    res.status(500).json({ message: "Erro ao descurtir card" });
   }
 };
 

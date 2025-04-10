@@ -11,8 +11,8 @@ export default function Card({
     isLiked ? "active" : ""
   }`;
 
-  // Manipulador do clique no botão de curtir
   function handleLikeClick() {
+    console.log("Like clicked - current state:", isLiked);
     onCardLike(card);
   }
 
@@ -44,8 +44,9 @@ export default function Card({
       <button
         aria-label="LIKE"
         className={cardLikeButtonClassName}
+        type="button"
         onClick={handleLikeClick}
-      ></button>
+      />
     </div>
   );
 }

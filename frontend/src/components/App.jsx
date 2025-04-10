@@ -1,5 +1,4 @@
-import React from "react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Routes,
   Route,
@@ -7,7 +6,18 @@ import {
   useNavigate,
   useLocation,
 } from "react-router-dom";
-import ProtectedRoute from "./ProtectedRoute";
+
+// Utils
+import * as api from "../utils/api";
+
+import { setToken, getToken, removeToken } from "../utils/token";
+
+import { Popups } from "./Main/components/constants";
+
+// Contexts
+import AppContext from "../contexts/AppContext";
+import CurrentUserContext from "../contexts/CurrentUserContext";
+import CardContext from "../contexts/CardContext";
 
 // Handlers
 import {
@@ -23,26 +33,16 @@ import {
   handleOpenPopup,
   handleClosePopup,
 } from "../utils/handlers/popupHandlers";
-import { handleError } from "../utils/handlers/errorHandlers";
 
 // Components
+import ProtectedRoute from "./ProtectedRoute";
 import Register from "./Register";
 import Login from "../components/Login";
 import Header from "./Header";
 import Main from "../pages/Main";
 import Footer from "./Footer";
-import InfoTooltip from "./Main/components/Popup/components/InfoTooltip";
 import Popup from "./Main/components/Popup/Popup";
-
-// Contexts
-import CurrentUserContext from "../contexts/CurrentUserContext";
-import CardContext from "../contexts/CardContext";
-import AppContext from "../contexts/AppContext";
-
-// Utils
-import * as api from "../utils/api";
-import { setToken, getToken, removeToken } from "../utils/token";
-import { Popups } from "./Main/components/constants";
+import InfoTooltip from "./Main/components/Popup/components/InfoTooltip";
 
 function App() {
   const [currentUser, setCurrentUser] = useState({
@@ -144,6 +144,7 @@ function App() {
         // Caso a resposta não venha no formato esperado
         setIsLoginSuccess(false);
         setIsInfoTooltipOpen(true);
+        setErrorType("login");
       }
     } catch (error) {
       console.error("Erro ao fazer login: ", error);
@@ -158,13 +159,6 @@ function App() {
   // FUNCTION - ATUALIZAR DADOS DO USUARIO
   const onUpdateProfile = async ({ name, about }) => {
     try {
-      // Atualização otimista imediata
-      setCurrentUser((prev) => ({
-        ...prev,
-        name,
-        about,
-      }));
-
       // Chamada ao handler existente
       const updatedUser = await handleProfileFormSubmit({
         name,
@@ -201,12 +195,6 @@ function App() {
   // FUNCTION - ATUALIZAR AVATAR
   const onUpdateAvatar = async (avatarUrl) => {
     try {
-      // Atualização otimista
-      setCurrentUser((prev) => ({
-        ...prev,
-        avatar: avatarUrl,
-      }));
-
       const updatedUser = await handleAvatarFormSubmit({
         avatarUrl,
         setCurrentUser: (updateFn) => {
@@ -253,13 +241,47 @@ function App() {
     }
   };
 
-  // FUNCTION - LIKE CARD
+  // FUNCTION - CURTIR/DESCURTIR CARD
   const onCardLike = async (card) => {
     try {
-      await handleCardLike(card, setCards);
+      // Atualização otimista imediata
+      setCards((prevCards) =>
+        prevCards.map((c) =>
+          c._id === card._id ? { ...c, isLiked: !c.isLiked } : c
+        )
+      );
+
+      const result = await handleCardLike(card);
+
+      if (result.success) {
+        // Atualização definitiva com os dados da API
+        setCards((prevCards) =>
+          prevCards.map((c) =>
+            c._id === card._id
+              ? {
+                  ...c,
+                  isLiked: result.isLiked,
+                  likes: result.likes,
+                }
+              : c
+          )
+        );
+      } else {
+        // Reverte em caso de erro
+        setCards((prevCards) =>
+          prevCards.map((c) =>
+            c._id === card._id ? { ...c, isLiked: !c.isLiked } : c
+          )
+        );
+      }
     } catch (error) {
-      handleError(error);
-      throw error;
+      console.error("Erro ao curtir card:", error);
+      // Reverte em caso de exceção não tratada
+      setCards((prevCards) =>
+        prevCards.map((c) =>
+          c._id === card._id ? { ...c, isLiked: !c.isLiked } : c
+        )
+      );
     }
   };
 
@@ -268,10 +290,13 @@ function App() {
     try {
       const result = await handleCardDelete(card, currentUser._id);
 
+      // Verifique explicitamente se o card deve ser removido da UI
       if (result.success && result.shouldRemove) {
+        // Apenas remova o card da UI se a operação foi bem-sucedida
         setCards((prevCards) => prevCards.filter((c) => c._id !== card._id));
         onClosePopup();
       } else {
+        // Se não deve remover, apenas mostre a mensagem de erro, sem alterar o estado dos cards
         setIsInfoTooltipOpen(true);
         setErrorType("permission");
       }
@@ -279,6 +304,7 @@ function App() {
       console.error("Erro ao deletar card:", error);
       setIsInfoTooltipOpen(true);
       setErrorType("permission");
+      // Não altere o estado dos cards em caso de erro
     }
   };
 
@@ -359,8 +385,8 @@ function App() {
                         popup={popup}
                         onCardLike={onCardLike}
                         onCardDelete={onCardDelete}
-                        cards={cards} // Passando cards como propriedade
-                        setCards={setCards} // Passando setCards como propriedade
+                        cards={cards}
+                        setCards={setCards}
                       />
                     </ProtectedRoute>
                   }

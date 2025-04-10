@@ -1,4 +1,5 @@
 import * as api from "../api";
+
 import { handleError } from "./errorHandlers";
 
 // FUNCTION - manipula dados do form de PERFIL
