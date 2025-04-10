@@ -118,6 +118,7 @@ export const updateAvatar = (avatar) => {
 
 // FUNCTION - adicionar novo card
 export const addCard = ({ name, link }) => {
+  console.log("Adicionando novo card:", link);
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 5000);
 

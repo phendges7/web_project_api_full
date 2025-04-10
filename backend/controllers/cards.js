@@ -1,5 +1,5 @@
-const Card = require("../models/card");
-const { HttpStatus, HttpResponseMessage } = require("../enums/http.js");
+import Card from ("../models/card");
+import { HttpStatus } from ("../enums/http.js");
 
 // controller para buscar todos os cards
 const getCards = async (req, res, next) => {
@@ -27,7 +27,7 @@ const getCards = async (req, res, next) => {
 const createCard = async (req, res) => {
   try {
     const { name, link } = req.body;
-
+    console.log("Criando novo card BACKEND:", name, link);
     // O owner é automaticamente pego do token JWT
     const card = await Card.create({
       name,

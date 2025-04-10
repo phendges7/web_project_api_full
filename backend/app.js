@@ -1,10 +1,12 @@
-const mongoose = require("mongoose");
-const express = require("express");
-const path = require("path");
-const cors = require("cors");
-const { errors } = require("celebrate");
+import mongoose from "mongoose";
+import express from "express";
+import path from "path";
+import cors from "cors";
+import { errors } from "celebrate";
+import dotenv from "dotenv";
 
 const app = express();
+dotenv.config();
 const { PORT = 7000 } = process.env;
 
 // Importa os controladores de usuário
@@ -30,7 +32,7 @@ app.use(express.static(path.join(__dirname, "../frontend")));
 
 // Conexão com o MongoDB
 mongoose
-  .connect("mongodb://localhost:27017/aroundb")
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ Conectado ao MongoDB com sucesso"))
   .catch((err) => console.error("❌ Erro na conexão com MongoDB:", err));
 

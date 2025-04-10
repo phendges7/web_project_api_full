@@ -1,43 +1,36 @@
-const { celebrate, Joi } = require("celebrate");
-const validator = require("validator");
+import { celebrate, Joi } from "celebrate";
+import validator from "validator";
 
-const validateURL = (value, helpers) => {
+export const validateURL = (value, helpers) => {
   if (!validator.isURL(value)) {
     return helpers.message("URL inválida");
   }
   return value;
 };
 
-const validateCreateUser = celebrate({
+export const validateCreateUser = celebrate({
   body: Joi.object().keys({
     email: Joi.string().email().required(),
     password: Joi.string().required().min(8),
   }),
 });
 
-const validateLogin = celebrate({
+export const validateLogin = celebrate({
   body: Joi.object().keys({
     email: Joi.string().email().required(),
     password: Joi.string().required().min(8),
   }),
 });
 
-const validateUpdateUser = celebrate({
+export const validateUpdateUser = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     about: Joi.string().required().min(2).max(30),
   }),
 });
 
-const validateUpdateAvatar = celebrate({
+export const validateUpdateAvatar = celebrate({
   body: Joi.object().keys({
     avatar: Joi.string().custom(validateURL),
   }),
 });
-
-module.exports = {
-  validateCreateUser,
-  validateLogin,
-  validateUpdateUser,
-  validateUpdateAvatar,
-};

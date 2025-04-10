@@ -1,11 +1,11 @@
-const User = require("../models/user");
-const {
+import User from ("../models/user");
+import {
   HttpStatus,
   HttpResponseMessage,
   ErrorTypes,
-} = require("../enums/http");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+} from ("../enums/http");
+import bcrypt from ("bcryptjs");
+import jwt from ("jsonwebtoken");
 
 // Helper para formatar erros
 const throwError = (message, status, type) => {
