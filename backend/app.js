@@ -37,6 +37,13 @@ mongoose
 // Chamada do logger
 app.use(requestLogger);
 
+// Rota de teste para verificar se o servidor está funcionando
+app.get("/crash-test", () => {
+  setTimeout(() => {
+    throw new Error("O servidor travará agora");
+  }, 0);
+});
+
 // Rotas públicas
 app.post("/signin", validateLogin, login);
 app.post("/signup", validateCreateUser, createUser);

@@ -385,8 +385,8 @@ function App() {
                         popup={popup}
                         onCardLike={onCardLike}
                         onCardDelete={onCardDelete}
-                        cards={cards} // Passando cards como propriedade
-                        setCards={setCards} // Passando setCards como propriedade
+                        cards={cards}
+                        setCards={setCards}
                       />
                     </ProtectedRoute>
                   }
