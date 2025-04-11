@@ -54,7 +54,7 @@ import {
 } from "./validators/usersValidator.js";
 
 // Middlewares
-app.use(cors({ origin: "https://web-project-api-full-ochre.vercel.app/" }));
+app.use(cors()); // Permite TODAS origens (remova depois dos testes)
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../frontend")));
 
