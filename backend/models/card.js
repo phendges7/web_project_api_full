@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const cardSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -11,11 +11,9 @@ const cardSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator: (v) => {
-        return /^(https?:\/\/)(www\.)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/.test(
-          v
-        );
+        return /^https?:\/\/[^\s$.?#].[^\s]*$/.test(v);
       },
-      message: (props) => `${props.value} não é um link válido!`,
+      message: "URL inválida",
     },
   },
   owner: {
@@ -34,4 +32,4 @@ const cardSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("card", cardSchema);
+export default mongoose.model("card", cardSchema);

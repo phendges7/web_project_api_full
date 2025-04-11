@@ -1,5 +1,6 @@
-const { HttpStatus, HttpResponseMessage } = require("../enums/http.js");
-const { isCelebrateError } = require("celebrate");
+import { HttpStatus, HttpResponseMessage } from "../enums/http.js";
+import { isCelebrateError } from "celebrate";
+import { ErrorTypes } from "../enums/http.js";
 
 const errorHandler = (err, req, res, next) => {
   console.error(err.stack); // Loga o erro no console
@@ -44,4 +45,4 @@ const errorHandler = (err, req, res, next) => {
   res.status(errorResponse.code).json(errorResponse);
 };
 
-module.exports = errorHandler;
+export default errorHandler;

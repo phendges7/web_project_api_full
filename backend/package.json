@@ -1,9 +1,13 @@
 {
+  "type": "module",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "celebrate": "^15.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
+    "eslint": "^9.24.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
     "express": "^4.18.2",
     "express-winston": "^4.2.0",
     "joi": "^17.13.3",
@@ -14,12 +18,16 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
+    "eslint-plugin-node": "^11.1.0",
     "lint": "^1.1.2",
     "nodemon": "^3.1.9"
   },
   "scripts": {
-    "dev": "nodemon app.js",
+    "dev": "nodemon  app.js",
     "start": "node app.js",
     "lint": "eslint ."
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }

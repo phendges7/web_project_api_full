@@ -56,7 +56,6 @@ export const loginUser = ({ email, password }) => {
 
 // FUNCTION - registrar usuario
 export const registerUser = ({ email, password }) => {
-  console.log("Dados do registro:", { email, password });
   return fetch(`${BASE_URL}/signup`, {
     method: "POST",
     headers: getHeaders(),
@@ -141,8 +140,6 @@ export const addCard = ({ name, link }) => {
 };
 // FUNCTION - mudar status de like do card
 export const changeLikeCardStatus = (cardId, isLiked) => {
-  console.log("Mudando status de like do card com ID:", cardId);
-  console.log("Status de like:", isLiked);
   return fetch(`${BASE_URL}/cards/${cardId}/likes`, {
     method: isLiked ? "PUT" : "DELETE",
     headers: getHeaders(),
@@ -153,8 +150,6 @@ export const changeLikeCardStatus = (cardId, isLiked) => {
 
 // FUNCTION - deletar card
 export const deleteCard = (cardId, userId) => {
-  console.log("Deletando card com ID:", cardId);
-  console.log("ID do usuário:", userId);
   return fetch(`${BASE_URL}/cards/${cardId}`, {
     method: "DELETE",
     headers: getHeaders(),

@@ -1,14 +1,10 @@
-const User = require("../models/user");
-const {
-  HttpStatus,
-  HttpResponseMessage,
-  ErrorTypes,
-} = require("../enums/http");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+import User from "../models/user.js";
+import { HttpStatus, HttpResponseMessage, ErrorTypes } from "../enums/http.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 // Helper para formatar erros
-const throwError = (message, status, type) => {
+export const throwError = (message, status, type) => {
   const error = new Error(message);
   error.status = status;
   error.type = type;
@@ -16,7 +12,7 @@ const throwError = (message, status, type) => {
 };
 
 // controller para buscar usuario atuals
-const getCurrentUser = async (req, res, next) => {
+export const getCurrentUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
 
@@ -30,7 +26,7 @@ const getCurrentUser = async (req, res, next) => {
 };
 
 // controller para criar um usuario
-const createUser = async (req, res, next) => {
+export const createUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -62,11 +58,21 @@ const createUser = async (req, res, next) => {
 };
 
 // controller para atualizar informações do usuario
-const updateUserInfo = async (req, res, next) => {
+export const updateUserInfo = async (req, res, next) => {
   try {
     const { name, about } = req.body;
+    const userId = req.user._id;
+
+    if (req.params.userId && req.params.userId !== userId) {
+      throwError(
+        "Acesso negado: você só pode editar seu próprio perfil",
+        HttpStatus.FORBIDDEN,
+        ErrorTypes.AUTH
+      );
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
-      req.user._id,
+      userId,
       { name, about },
       { new: true, runValidators: true }
     );
@@ -90,11 +96,21 @@ const updateUserInfo = async (req, res, next) => {
 };
 
 // controller para atualizar o avatar do usuario
-const updateAvatar = async (req, res, next) => {
+export const updateAvatar = async (req, res, next) => {
   try {
     const { avatar } = req.body;
+    const userId = req.user._id; // ID do usuário logado
+
+    // Bloqueia se tentar editar outro usuário
+    if (req.params.userId && req.params.userId !== userId) {
+      throwError(
+        "Acesso negado: você só pode editar seu próprio avatar",
+        HttpStatus.FORBIDDEN,
+        ErrorTypes.AUTH
+      );
+    }
     const updatedUser = await User.findByIdAndUpdate(
-      req.user._id,
+      userId,
       { avatar },
       { new: true, runValidators: true }
     );
@@ -118,10 +134,11 @@ const updateAvatar = async (req, res, next) => {
 };
 
 // controller para manipular login
-const login = async (req, res, next) => {
+export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
+    // Validação basica de email e senha
     if (!email || !password) {
       throwError(
         "Email e senha são obrigatórios",
@@ -130,6 +147,7 @@ const login = async (req, res, next) => {
       );
     }
 
+    // Busca usuario
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
       throwError(
@@ -139,6 +157,7 @@ const login = async (req, res, next) => {
       );
     }
 
+    // Verifica senha
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throwError(
@@ -148,15 +167,32 @@ const login = async (req, res, next) => {
       );
     }
 
+    // Verifica se a variável de ambiente JWT_SECRET está definida
+    const jwtSecret =
+      process.env.NODE_ENV === "production"
+        ? process.env.JWT_SECRET // Em produção, exige a variável
+        : process.env.JWT_SECRET || "dev-secret-fallback"; // Em dev, usa fallback
+
+    if (!jwtSecret) {
+      throwError(
+        "Configuração de autenticação inválida",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        ErrorTypes.SERVER
+      );
+    }
+
+    // Gera token
     const token = jwt.sign(
       { _id: user._id },
-      process.env.JWT_SECRET || "segredoSuperSecreto",
+      jwtSecret, // Usa a chave determinada acima
       { expiresIn: "7d" }
     );
 
+    // Remove senha do response
     const userWithoutPassword = user.toObject();
     delete userWithoutPassword.password;
 
+    // Response
     res.status(HttpStatus.OK).json({
       success: true,
       data: {
@@ -167,12 +203,4 @@ const login = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
-
-module.exports = {
-  getCurrentUser,
-  createUser,
-  updateUserInfo,
-  updateAvatar,
-  login,
 };

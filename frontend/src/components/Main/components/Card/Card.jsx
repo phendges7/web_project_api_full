@@ -12,7 +12,6 @@ export default function Card({
   }`;
 
   function handleLikeClick() {
-    console.log("Like clicked - current state:", isLiked);
     onCardLike(card);
   }
 

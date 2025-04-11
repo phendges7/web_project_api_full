@@ -1,33 +1,67 @@
-const jwt = require("jsonwebtoken");
-const { HttpStatus, HttpResponseMessage } = require("../enums/http");
+import jwt from "jsonwebtoken";
+import { HttpStatus, HttpResponseMessage } from "../enums/http.js";
 
 const auth = (req, res, next) => {
-  // Verifica se o token JWT está presente no cabeçalho Authorization
-  // Se não houver token, retorna um erro de não autorizado
   const { authorization } = req.headers;
-  if (!authorization || !authorization.startsWith("Bearer ")) {
+
+  // Verificação mais robusta do header Authorization
+  if (
+    typeof authorization !== "string" ||
+    !authorization.startsWith("Bearer ")
+  ) {
     return res.status(HttpStatus.UNAUTHORIZED).json({
+      success: false,
       message: HttpResponseMessage.UNAUTHORIZED,
+      details: "Token de autenticação ausente ou mal formatado",
     });
   }
 
-  // Remove o prefixo "Bearer " do token
-  // Verifica se o token é válido
-  const token = authorization.replace("Bearer ", "");
-  try {
-    const payload = jwt.verify(
-      token,
-      process.env.JWT_SECRET || "segredoSuperSecreto",
-      { expiresIn: "6h" }
-    );
-    req.user = payload;
-    next();
-  } catch (error) {
-    console.error("Erro ao verificar token:", error);
-    return res.status(HttpStatus.UNAUTHORIZED).json({
-      message: HttpResponseMessage.UNAUTHORIZED,
+  const token = authorization.slice(7); // Mais eficiente que replace()
+
+  // Validação mais segura do JWT_SECRET
+  if (!process.env.JWT_SECRET) {
+    console.error("Falta configurar JWT_SECRET no ambiente");
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Erro interno no servidor",
     });
+  }
+
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Verificação adicional do payload
+    if (!payload || typeof payload !== "object") {
+      throw new Error("Payload do token inválido");
+    }
+
+    req.user = {
+      _id: payload._id,
+      // Inclua apenas os dados necessários no req.user
+      ...(payload.email && { email: payload.email }),
+      ...(payload.role && { role: payload.role }),
+    };
+
+    return next();
+  } catch (error) {
+    console.error("Falha na autenticação:", error.name, error.message);
+
+    const response = {
+      success: false,
+      message: HttpResponseMessage.UNAUTHORIZED,
+    };
+
+    // Mensagens mais específicas para diferentes erros
+    if (error.name === "TokenExpiredError") {
+      response.details = "Token expirado";
+    } else if (error.name === "JsonWebTokenError") {
+      response.details = "Token inválido";
+    } else {
+      response.details = "Falha na autenticação";
+    }
+
+    return res.status(HttpStatus.UNAUTHORIZED).json(response);
   }
 };
 
-module.exports = auth;
+export default auth;

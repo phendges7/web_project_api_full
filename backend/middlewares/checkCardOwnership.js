@@ -1,5 +1,5 @@
-const Card = require("../models/card");
-const { HttpStatus, HttpResponseMessage } = require("../enums/http");
+import Card from "../models/card.js";
+import { HttpStatus, HttpResponseMessage } from "../enums/http.js";
 
 const checkCardOwnership = async (req, res, next) => {
   try {
@@ -31,4 +31,4 @@ const checkCardOwnership = async (req, res, next) => {
   }
 };
 
-module.exports = checkCardOwnership;
+export default checkCardOwnership;
