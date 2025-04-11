@@ -82,6 +82,7 @@
   cursor: pointer;
   background: url(../images/deleteButton.svg) center;
   border: none;
+  background-repeat: no-repeat;
 }
 
 /*------- Consulta midia MEDIA -------*/
