@@ -138,6 +138,7 @@ export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
+    // Validação basica de email e senha
     if (!email || !password) {
       throwError(
         "Email e senha são obrigatórios",
@@ -146,6 +147,7 @@ export const login = async (req, res, next) => {
       );
     }
 
+    // Busca usuario
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
       throwError(
@@ -155,6 +157,7 @@ export const login = async (req, res, next) => {
       );
     }
 
+    // Verifica senha
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throwError(
@@ -164,13 +167,32 @@ export const login = async (req, res, next) => {
       );
     }
 
-    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
+    // Verifica se a variável de ambiente JWT_SECRET está definida
+    const jwtSecret =
+      process.env.NODE_ENV === "production"
+        ? process.env.JWT_SECRET // Em produção, exige a variável
+        : process.env.JWT_SECRET || "dev-secret-fallback"; // Em dev, usa fallback
 
+    if (!jwtSecret) {
+      throwError(
+        "Configuração de autenticação inválida",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        ErrorTypes.SERVER
+      );
+    }
+
+    // Gera token
+    const token = jwt.sign(
+      { _id: user._id },
+      jwtSecret, // Usa a chave determinada acima
+      { expiresIn: "7d" }
+    );
+
+    // Remove senha do response
     const userWithoutPassword = user.toObject();
     delete userWithoutPassword.password;
 
+    // Response
     res.status(HttpStatus.OK).json({
       success: true,
       data: {

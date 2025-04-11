@@ -2,7 +2,6 @@ import * as api from "../api";
 
 export const handleCardFormSubmit = async ({ name, link }) => {
   try {
-    console.log("Adicionando novo card CARDHANDLER:", link);
     const newCard = await api.addCard({ name, link });
     return { success: true, card: newCard };
   } catch (error) {

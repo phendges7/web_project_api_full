@@ -8,10 +8,24 @@ import { errors } from "celebrate";
 import dotenv from "dotenv";
 dotenv.config();
 
-if (!process.env.JWT_SECRET) {
-  throw new Error(
-    "❌ Erro crítico: JWT_SECRET não está definido nas variáveis de ambiente"
-  );
+// Carrega .env apenas em desenvolvimento
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config(); // Tenta carregar, mas não falha se não existir
+}
+
+// Configurações com fallback para desenvolvimento
+const config = {
+  JWT_SECRET: process.env.JWT_SECRET || "seguro-mas-nao-producao",
+  MONGO_URI: process.env.MONGO_URI || "mongodb://localhost:27017/devdb",
+};
+
+// Em produção, exige as variáveis
+if (process.env.NODE_ENV === "production") {
+  if (!process.env.JWT_SECRET || !process.env.MONGO_URI) {
+    throw new Error(
+      "❌ Variáveis de ambiente obrigatórias faltando em produção!"
+    );
+  }
 }
 
 // Get __dirname equivalent in ES modules

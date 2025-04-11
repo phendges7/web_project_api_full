@@ -1,9 +1,6 @@
 import jwt from "jsonwebtoken";
 import { HttpStatus, HttpResponseMessage } from "../enums/http.js";
 
-// Configuração do ambiente deve ser feita apenas uma vez no entrypoint da aplicação
-// (normalmente no app.js/server.js), então removi o dotenv.config() daqui
-
 const auth = (req, res, next) => {
   const { authorization } = req.headers;
 

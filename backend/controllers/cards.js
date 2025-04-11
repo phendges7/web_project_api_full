@@ -27,7 +27,6 @@ const getCards = async (req, res, next) => {
 const createCard = async (req, res) => {
   try {
     const { name, link } = req.body;
-    console.log("Criando novo card BACKEND:", name, link);
     // O owner é automaticamente pego do token JWT
     const card = await Card.create({
       name,
