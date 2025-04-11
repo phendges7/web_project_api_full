@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import auth from '../middlewares/auth.js';
+import { Router } from "express";
+import auth from "../middlewares/auth.js";
 
 // Importa os middlewares de validação
 import {
@@ -7,7 +7,7 @@ import {
   validateLogin,
   validateUpdateUser,
   validateUpdateAvatar,
-} from '../validators/usersValidator.js';
+} from "../validators/usersValidator.js";
 
 // Importa os controladores
 import {
@@ -16,17 +16,17 @@ import {
   updateUserInfo,
   updateAvatar,
   login,
-} from '../controllers/users.js';
+} from "../controllers/users.js";
 
 // Cria o router
 const router = Router();
 
 // Define as rotas
-router.post('/signup', validateCreateUser, createUser);
-router.post('/signin', validateLogin, login);
-router.get('/me', auth, getCurrentUser);
-router.patch('/me', validateUpdateUser, updateUserInfo);
-router.patch('/me/avatar', validateUpdateAvatar, updateAvatar);
+router.post("/signup", validateCreateUser, createUser);
+router.post("/signin", validateLogin, login);
+router.get("/me", auth, getCurrentUser);
+router.patch("/me", auth, validateUpdateUser, updateUserInfo);
+router.patch("/me/avatar", auth, validateUpdateAvatar, updateAvatar);
 
 // Exporta o router
 export default router;

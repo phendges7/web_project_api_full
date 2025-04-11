@@ -4,14 +4,21 @@ import path from "path";
 import { fileURLToPath } from "url";
 import cors from "cors";
 import { errors } from "celebrate";
+
 import dotenv from "dotenv";
+dotenv.config();
+
+if (!process.env.JWT_SECRET) {
+  throw new Error(
+    "❌ Erro crítico: JWT_SECRET não está definido nas variáveis de ambiente"
+  );
+}
 
 // Get __dirname equivalent in ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-dotenv.config();
 const { PORT = 7000 } = process.env;
 
 // Import controllers

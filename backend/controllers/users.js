@@ -61,8 +61,18 @@ export const createUser = async (req, res, next) => {
 export const updateUserInfo = async (req, res, next) => {
   try {
     const { name, about } = req.body;
+    const userId = req.user._id;
+
+    if (req.params.userId && req.params.userId !== userId) {
+      throwError(
+        "Acesso negado: você só pode editar seu próprio perfil",
+        HttpStatus.FORBIDDEN,
+        ErrorTypes.AUTH
+      );
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
-      req.user._id,
+      userId,
       { name, about },
       { new: true, runValidators: true }
     );
@@ -89,8 +99,18 @@ export const updateUserInfo = async (req, res, next) => {
 export const updateAvatar = async (req, res, next) => {
   try {
     const { avatar } = req.body;
+    const userId = req.user._id; // ID do usuário logado
+
+    // Bloqueia se tentar editar outro usuário
+    if (req.params.userId && req.params.userId !== userId) {
+      throwError(
+        "Acesso negado: você só pode editar seu próprio avatar",
+        HttpStatus.FORBIDDEN,
+        ErrorTypes.AUTH
+      );
+    }
     const updatedUser = await User.findByIdAndUpdate(
-      req.user._id,
+      userId,
       { avatar },
       { new: true, runValidators: true }
     );
@@ -144,11 +164,9 @@ export const login = async (req, res, next) => {
       );
     }
 
-    const token = jwt.sign(
-      { _id: user._id },
-      process.env.JWT_SECRET || "segredoSuperSecreto",
-      { expiresIn: "7d" }
-    );
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
 
     const userWithoutPassword = user.toObject();
     delete userWithoutPassword.password;
