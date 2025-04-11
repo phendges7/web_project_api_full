@@ -1,6 +1,6 @@
 import { getToken } from "./token";
 
-const BASE_URL = "http://localhost:7000"; // Substitua pelo URL da sua API
+const BASE_URL = "https://web-project-api-full-u3m9.onrender.com"; // Substitua pelo URL da sua API
 
 // FUNCTION - pegar cabecalhos
 const getHeaders = () => {

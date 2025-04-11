@@ -16,7 +16,7 @@ if (process.env.NODE_ENV !== "production") {
 // Configurações com fallback para desenvolvimento
 const config = {
   JWT_SECRET: process.env.JWT_SECRET || "seguro-mas-nao-producao",
-  MONGO_URI: process.env.MONGO_URI || "mongodb://localhost:27017/devdb",
+  MONGO_URI: process.env.MONGO_URI || "mongodb://localhost:27017/aroundb",
 };
 
 // Em produção, exige as variáveis
