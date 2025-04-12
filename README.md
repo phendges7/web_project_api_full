@@ -158,7 +158,7 @@ Tornar a aplicação mais acessível para todos os usuários, implementando:
 [WebApp implementado na plataforma VERCEL](https://web-project-api-full-ochre.vercel.app/)
 
 ## Link de video demo
-[Upload realizado enquanto utilizando a plataforma VERCEL](https://youtu.be/2tyRgOvAfU0)
+[Gravação realizado enquanto utilizando a plataforma VERCEL](https://youtu.be/2tyRgOvAfU0)
 
 ## Autor
 
