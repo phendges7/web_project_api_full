@@ -153,11 +153,25 @@ Tornar a aplicação mais acessível para todos os usuários, implementando:
 
 ---
 
-## 📝 Licença
+## Link do website
 
-Este projeto está sob a licença MIT. Consulte o arquivo `LICENSE` para mais detalhes.
+[WebApp implementado na plataforma VERCEL](https://web-project-api-full-ochre.vercel.app/)
 
----
+## Link de video demo
+[Upload realizado enquanto utilizando a plataforma VERCEL](https://youtu.be/2tyRgOvAfU0)
+
+## Autor
+
+Pedro Henrique
+
+## Meta
+
+Este projeto demonstra o uso do ReactJS com foco em popups e criação de cartões, seguindo boas práticas de desenvolvimento web, design pixel-perfect e gestão avançada de estado com hooks e contextos.
+Tambem visa demonstrar o uso de Node.JS e Express.JS para trabalhar com o Backend, conectado ao Frontend atraves de APIs.
+
+## Licença
+
+Este projeto é de uso livre para fins educacionais e pessoais.
 
 ## 📧 Contato
 
