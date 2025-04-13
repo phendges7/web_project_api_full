@@ -85,6 +85,12 @@
   background-repeat: no-repeat;
 }
 
+.card__delete-button:hover {
+  transition: opacity 0.3s ease;
+  opacity: 0.5;
+  background-color: blue;
+}
+
 /*------- Consulta midia MEDIA -------*/
 
 @media screen and (max-width: 1024px) {
