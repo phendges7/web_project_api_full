@@ -178,4 +178,4 @@ This project is free to use for educational and personal purposes.
 
 For questions or suggestions, contact:
 
-- **Author**: [phendges7](https://github.com/phendges7)
+- **Author**: [phendges7](https://linkedin.com/in/phendges7)
