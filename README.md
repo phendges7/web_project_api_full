@@ -1,180 +1,181 @@
 # Web Project API Full
 
-Este repositório contém um projeto completo de uma aplicação web que possui um backend e um frontend. Ele foi desenvolvido para oferecer uma arquitetura bem estruturada e moderna usando tecnologias populares, como Node.js, Express, MongoDB no backend, e React no frontend.
+This repository contains a complete web application project with both backend and frontend. It was developed to offer a well-structured and modern architecture using current technologies.
 
 ---
 
-## 📖 Visão Geral
+## 📖 Overview
 
-O projeto é dividido em dois principais diretórios:
+The project is divided into two main directories:
 
-- **Backend**: Gerencia a lógica do servidor, autenticação, API RESTful e integração com banco de dados.
-- **Frontend**: Interface de usuário construída com React, interagindo com a API fornecida pelo backend.
+- **Backend**: Manages server logic, authentication, RESTful API, and database integration.
+- **Frontend**: User interface built with React, interacting with the API provided by the backend.
 
 ---
 
-## ✨ Tecnologias Usadas
+## ✨ Technologies Used
 
 ### Backend
 
-- **Node.js**: Plataforma para execução do JavaScript no servidor.
-- **Express.js**: Framework web para construir APIs RESTful.
-- **MongoDB**: Banco de dados NoSQL para armazenamento de dados.
-- **JWT (JSON Web Token)**: Autenticação e autorização.
-- **Mongoose**: ODM para modelar dados no MongoDB.
+- **Node.js**: Platform for running JavaScript on the server.
+- **Express.js**: Web framework for building RESTful APIs.
+- **MongoDB**: NoSQL database for data storage.
+- **JWT (JSON Web Token)**: Authentication and authorization.
+- **Mongoose**: ODM for modeling data in MongoDB.
 
 ### Frontend
 
-- **React**: Biblioteca JavaScript para construção de interfaces de usuário.
-- **Vite**: Ferramenta de construção rápida para desenvolvimento com React.
-- **CSS**: Para estilização da interface.
-- **ESLint**: Configuração para garantir qualidade de código.
+- **React**: JavaScript library for building user interfaces.
+- **Vite**: Fast build tool for React development.
+- **CSS**: For interface styling.
+- **ESLint**: Configuration to ensure code quality.
 
 ---
 
-## 📂 Estrutura de Diretórios
+## 📂 Directory Structure
 
 ### Backend
 
-- **`backend/app.js`**: Arquivo de entrada do servidor.
-- **`backend/controllers`**: Contém controladores para gerenciar a lógica de negócios.
+- **`backend/app.js`**: Server entry file.
+- **`backend/controllers`**: Contains controllers for business logic.
   - [cards.js](backend/controllers/cards.js)
   - [users.js](backend/controllers/users.js)
-- **`backend/enums`**: Contém enums de configuração, como [http.js](backend/enums/http.js).
-- **`backend/middlewares`**: Middlewares para tratamentos específicos.
-  - [auth.js](backend/middlewares/auth.js): Middleware para autenticação.
-  - [errorHandler.js](backend/middlewares/errorHandler.js): Middleware para tratamento de erros.
-- **`backend/models`**: Modelos de dados para o MongoDB.
+- **`backend/enums`**: Configuration enums, such as [http.js](backend/enums/http.js).
+- **`backend/middlewares`**: Middlewares for specific treatments.
+  - [auth.js](backend/middlewares/auth.js): Authentication middleware.
+  - [errorHandler.js](backend/middlewares/errorHandler.js): Error handling middleware.
+- **`backend/models`**: Data models for MongoDB.
   - [card.js](backend/models/card.js)
   - [user.js](backend/models/user.js)
-- **`backend/routes`**: Gerencia as rotas da aplicação.
+- **`backend/routes`**: Manages application routes.
   - [cards.js](backend/routes/cards.js)
   - [users.js](backend/routes/users.js)
-- **`backend/validators`**: Validações para entrada de dados.
+- **`backend/validators`**: Data input validations.
   - [cardsValidator.js](backend/validators/cardsValidator.js)
   - [usersValidator.js](backend/validators/usersValidator.js)
 
 ### Frontend
 
-- **`frontend/src`**: Contém os principais arquivos do React.
-  - **`components`**: Componentes reutilizáveis.
-  - **`pages`**: Páginas principais da aplicação.
-  - **`utils`**: Funções utilitárias.
-  - **`index.css`**: Estilos globais.
-  - **`main.jsx`**: Arquivo de entrada do React.
-- **`frontend/public`**: Arquivos públicos, como [vite.svg](frontend/public/vite.svg).
+- **`frontend/src`**: Main React files.
+  - **`components`**: Reusable components.
+  - **`pages`**: Main application pages.
+  - **`utils`**: Utility functions.
+  - **`index.css`**: Global styles.
+  - **`main.jsx`**: React entry file.
+- **`frontend/public`**: Public files, like [vite.svg](frontend/public/vite.svg).
 
 ---
 
-## 🚀 Como Rodar o Projeto
+## 🚀 How to Run the Project
 
-### Pré-requisitos
+### Prerequisites
 
-- Node.js instalado (v16+).
-- MongoDB configurado e rodando localmente ou em um servidor.
+- Node.js installed (v16+).
+- MongoDB configured and running locally or on a server.
 
 ### Backend
 
-1. Navegue até a pasta do backend:
-   ```bash
-   cd backend
-   ```
-2. Instale as dependências:
-   ```bash
-   npm install
-   ```
-3. Configure as variáveis de ambiente no arquivo `.env`.
-4. Inicie o servidor:
-   ```bash
-   npm start
-   ```
+1. Go to the backend folder:
+    ```bash
+    cd backend
+    ```
+2. Install dependencies:
+    ```bash
+    npm install
+    ```
+3. Configure environment variables in the `.env` file.
+4. Start the server:
+    ```bash
+    npm start
+    ```
 
 ### Frontend
 
-1. Navegue até a pasta do frontend:
-   ```bash
-   cd frontend
-   ```
-2. Instale as dependências:
-   ```bash
-   npm install
-   ```
-3. Inicie o servidor de desenvolvimento:
-   ```bash
-   npm run dev
-   ```
+1. Go to the frontend folder:
+    ```bash
+    cd frontend
+    ```
+2. Install dependencies:
+    ```bash
+    npm install
+    ```
+3. Start the development server:
+    ```bash
+    npm run dev
+    ```
 
 ---
 
-## 🛠️ Funcionalidades
+## 🛠️ Features
 
-1. **Autenticação**:
-   - Login com JWT.
-2. **Gerenciamento de Usuários**:
-   - CRUD de perfis de usuários.
-3. **Gerenciamento de Cards**:
-   - Adicionar, editar, curtir e excluir cards.
-4. **Frontend Dinâmico**:
-   - Interface interativa e responsiva construída com React.
-
----
-
-## 🆕 Novas Implementações Propostas
-
-Aqui estão algumas funcionalidades que podem ser adicionadas ao frontend para enriquecer ainda mais a experiência do usuário:
-
-### 1. Sistema de Favoritos:
-
-Adicionar funcionalidade de "favoritar" ou "salvar" itens importantes para rápido acesso posterior.
+1. **Authentication**:
+    - Login with JWT.
+2. **User Management**:
+    - CRUD for user profiles.
+3. **Card Management**:
+    - Add, edit, like, and delete cards.
+4. **Dynamic Frontend**:
+    - Interactive and responsive interface built with React.
 
 ---
 
-### 2. Animações e Transições
+## 🆕 Proposed New Implementations
 
-Melhorar a experiência geral do usuário ao adicionar:
+Here are some features that can be added to the frontend to further enhance user experience:
 
-- Animações suaves durante a navegação entre páginas.
-- Efeitos visuais para feedback ao clicar em botões ou enviar formulários.
+### 1. Favorites System
 
----
-
-### 3. Componentes de Acessibilidade
-
-Tornar a aplicação mais acessível para todos os usuários, implementando:
-
-- Navegação por teclado.
-- Suporte para leitores de tela.
-- Opções de alto contraste para pessoas com deficiência visual.
-
-**Benefícios**:
-
-- Garante conformidade com padrões de acessibilidade (WCAG).
-- Melhora a experiência para todos os usuários, independentemente de suas limitações.
+Add functionality to "favorite" or "save" important items for quick access later.
 
 ---
 
-## Link do website
+### 2. Animations and Transitions
 
-[WebApp implementado na plataforma VERCEL](https://web-project-api-full-ochre.vercel.app/)
+Improve overall user experience by adding:
 
-## Link de video demo
-[Gravação realizada enquanto acessando a plataforma VERCEL](https://youtu.be/2tyRgOvAfU0)
+- Smooth animations during page navigation.
+- Visual effects for feedback when clicking buttons or submitting forms.
 
-## Autor
+---
+
+### 3. Accessibility Components
+
+Make the application more accessible to all users by implementing:
+
+- Keyboard navigation.
+- Screen reader support.
+- High contrast options for visually impaired users.
+
+**Benefits**:
+
+- Ensures compliance with accessibility standards (WCAG).
+- Improves experience for all users, regardless of limitations.
+
+---
+
+## Website Link
+
+[WebApp deployed on VERCEL](https://web-project-api-full-ochre.vercel.app/)
+
+## Demo Video Link
+
+[Recording accessing the VERCEL platform](https://youtu.be/2tyRgOvAfU0)
+
+## Author
 
 Pedro Henrique
 
 ## Meta
 
-Este projeto demonstra o uso do ReactJS com foco em popups e criação de cartões, seguindo boas práticas de desenvolvimento web, design pixel-perfect e gestão avançada de estado com hooks e contextos.
-Tambem visa demonstrar o uso de Node.JS e Express.JS para trabalhar com o Backend, conectado ao Frontend atraves de APIs.
+This project demonstrates the use of ReactJS focused on popups and card creation, following good web development practices, pixel-perfect design, and advanced state management with hooks and context.  
+It also demonstrates the use of Node.JS and Express.JS for backend, connected to the frontend through APIs.
 
-## Licença
+## License
 
-Este projeto é de uso livre para fins educacionais e pessoais.
+This project is free to use for educational and personal purposes.
 
-## 📧 Contato
+## 📧 Contact
 
-Para dúvidas ou sugestões, entre em contato:
+For questions or suggestions, contact:
 
-- **Autor**: [phendges7](https://github.com/phendges7)
+- **Author**: [phendges7](https://github.com/phendges7)
