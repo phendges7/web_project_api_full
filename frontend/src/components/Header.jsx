@@ -26,7 +26,7 @@ const Header = () => {
         action: onSignout,
       };
     }
-    if (location.pathname === "/register") {
+    if (location.pathname === "/signup") {
       return {
         text: "Fazer Login",
         action: () => navigate("/login"),
